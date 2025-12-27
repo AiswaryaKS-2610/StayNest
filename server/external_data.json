@@ -1,0 +1,91 @@
+[
+    {
+        "id": 1,
+        "title": "Modern Studio near Trinity",
+        "price": 1800,
+        "location": "Dublin 2",
+        "image": "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267",
+        "tags": [
+            "bills",
+            "wifi"
+        ],
+        "rtb": true,
+        "lat": 53.3444,
+        "lng": -6.2577,
+        "description": "A beautiful modern studio apartment located just 5 minutes walk from Trinity College. Fully furnished with high-speed internet included."
+    },
+    {
+        "id": 2,
+        "title": "Shared House in Cork",
+        "price": 650,
+        "location": "Bishopstown, Cork",
+        "image": "https://images.unsplash.com/photo-1499793983690-e29da59ef1c2",
+        "tags": [
+            "ensuite",
+            "parking"
+        ],
+        "rtb": true,
+        "lat": 51.8760,
+        "lng": -8.5370,
+        "description": "Spacious double room in a shared house. Ideal for MTU or UCC students. Parking space available."
+    },
+    {
+        "id": 3,
+        "title": "Single Room near DCU",
+        "price": 800,
+        "location": "Glasnevin, Dublin 9",
+        "image": "https://images.unsplash.com/photo-1555854877-bab0e564b8d5",
+        "tags": [
+            "wifi"
+        ],
+        "rtb": false,
+        "lat": 53.3860,
+        "lng": -6.2580,
+        "description": "Cozy single room in a quiet family home. Close to DCU campus and bus routes to city center."
+    },
+    {
+        "id": 4,
+        "title": "Apt near UCD",
+        "price": 2100,
+        "location": "Belfield, Dublin 4",
+        "image": "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688",
+        "tags": [
+            "bills",
+            "ensuite"
+        ],
+        "rtb": true,
+        "lat": 53.3080,
+        "lng": -6.2220,
+        "description": "Luxury 1-bedroom apartment right next to UCD Belfield campus. Private balcony and ensuite bathroom."
+    },
+    {
+        "id": 5,
+        "title": "Student Halls near Griffith",
+        "price": 1100,
+        "location": "South Circular Rd, Dublin 8",
+        "image": "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf",
+        "tags": [
+            "gym",
+            "wifi"
+        ],
+        "rtb": true,
+        "lat": 53.3308,
+        "lng": -6.2797,
+        "description": "Modern student accommodation with onsite gym and study rooms. Walking distance to Griffith College."
+    },
+    {
+        "id": 6,
+        "title": "City Centre Flat near DBS",
+        "price": 1600,
+        "location": "Aungier St, Dublin 2",
+        "image": "https://images.unsplash.com/photo-1536376072261-38c75010e6c9",
+        "tags": [
+            "central",
+            "modern"
+        ],
+        "rtb": true,
+        "lat": 53.3392,
+        "lng": -6.2647,
+        "description": "Perfect location for DBS students. Right in the heart of the city with everything on your doorstep."
+    }
+]
