@@ -1,6 +1,9 @@
 import React from 'react';
+import { auth } from '../../../firebase.config';
 
 const RoommateCard = ({ profile }) => {
+    const isOwnProfile = profile.userId === auth.currentUser?.uid;
+
     return (
         <div className="premium-card" style={{
             marginBottom: '16px',
@@ -90,9 +93,11 @@ const RoommateCard = ({ profile }) => {
                 {profile.bio}
             </p>
 
-            <button className="btn-primary" style={{ width: '100%', padding: '12px', borderRadius: '12px' }}>
-                Message {profile.name.split(' ')[0]}
-            </button>
+            {!isOwnProfile && (
+                <button className="btn-primary" style={{ width: '100%', padding: '12px', borderRadius: '12px' }}>
+                    Message {profile.name.split(' ')[0]}
+                </button>
+            )}
         </div>
     );
 };
