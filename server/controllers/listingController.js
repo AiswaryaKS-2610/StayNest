@@ -1,34 +1,81 @@
-const fs = require('fs');
-const path = require('path');
+const admin = require('firebase-admin');
 
 const getListings = async (req, res) => {
     try {
-        await new Promise(resolve => setTimeout(resolve, 200));
-
-        const externalDataPath = path.join(__dirname, '../external_data.json');
-
-        fs.readFile(externalDataPath, 'utf8', (err, data) => {
-            if (err) {
-                console.error("Error reading external data file:", err);
-                return res.status(500).json({ message: "Failed to load data source" });
-            }
-            try {
-                const listings = JSON.parse(data);
-                res.json(listings);
-            } catch (parseError) {
-                console.error("Error parsing external data JSON:", parseError);
-                res.status(500).json({ message: "Data source corruption" });
-            }
-        });
+        const db = admin.firestore();
+        const snapshot = await db.collection('listings')
+            .where('status', '==', 'approved')
+            .get();
+        const listings = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        res.json(listings);
     } catch (error) {
-        res.status(500).json({ message: "Server Error" });
+        console.error("Firestore Get Error:", error);
+        res.status(500).json({ message: "Server Error fetching listings" });
     }
 };
 
-const createListing = (req, res) => {
-    const newListing = req.body;
-    console.log("New Listing:", newListing);
-    res.status(201).json({ message: "Listing created", id: Date.now() });
+const getBrokerListings = async (req, res) => {
+    try {
+        const uid = req.user.uid;
+        const db = admin.firestore();
+        const snapshot = await db.collection('listings')
+            .where('ownerUid', '==', uid)
+            .get();
+        const listings = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        res.json(listings);
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching your listings" });
+    }
 };
 
-module.exports = { getListings, createListing };
+const createListing = async (req, res) => {
+    try {
+        const db = admin.firestore();
+        const newListing = req.body;
+
+        // Add timestamp and initial status
+        newListing.createdAt = admin.firestore.FieldValue.serverTimestamp();
+        newListing.status = 'pending'; // All new broker listings start as pending
+
+        const docRef = await db.collection('listings').add(newListing);
+        res.status(201).json({ message: "Listing created", id: docRef.id });
+    } catch (error) {
+        console.error("Firestore Add Error:", error);
+        res.status(500).json({ message: "Failed to create listing" });
+    }
+};
+
+const updateListing = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const db = admin.firestore();
+        const updatedData = req.body;
+
+        // Don't allow updating createdAt or ownerUid
+        delete updatedData.createdAt;
+        delete updatedData.ownerUid;
+
+        await db.collection('listings').doc(id).update(updatedData);
+        res.json({ message: "Listing updated successfully" });
+    } catch (error) {
+        console.error("Firestore Update Error:", error);
+        res.status(500).json({ message: "Failed to update listing" });
+    }
+};
+
+const incrementViewCount = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const db = admin.firestore();
+
+        await db.collection('listings').doc(id).update({
+            views: admin.firestore.FieldValue.increment(1)
+        });
+        res.json({ message: "View count incremented" });
+    } catch (error) {
+        console.error("Firestore Increment Error:", error);
+        res.status(500).json({ message: "Failed to increment view count" });
+    }
+};
+
+module.exports = { getListings, getBrokerListings, createListing, updateListing, incrementViewCount };

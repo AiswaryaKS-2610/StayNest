@@ -1,0 +1,22 @@
+# Standard JS Ignores
+node_modules/
+.DS_Store
+*.log
+npm-debug.log*
+
+# Environment and Secrets
+.env
+.env.local
+.env.*.local
+serviceAccountKey.json
+
+# Build and IDE
+dist/
+dist-ssr/
+.vscode/
+.idea/
+
+# Project Specific
+PROJECT_SUMMARY.md
+firebase-debug.log
+./the folder structure.pdf

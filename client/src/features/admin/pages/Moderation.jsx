@@ -16,7 +16,7 @@ const Moderation = () => {
                         display: 'flex', justifyContent: 'space-between', alignItems: 'center'
                     }}>
                         <div>
-                            <h4 style={{ margin: 0 }}>John Doe (Broker)</h4>
+                            <h4 style={{ margin: 0 }}>Name (Broker)</h4>
                             <p style={{ margin: 0, color: '#666', fontSize: '12px' }}>ID Uploaded: Passport</p>
                         </div>
                         <div style={{ display: 'flex', gap: '8px' }}>

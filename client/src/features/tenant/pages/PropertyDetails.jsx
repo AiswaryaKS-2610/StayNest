@@ -2,112 +2,377 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import BookingModal from '../components/BookingModal';
 import Reviews from '../components/Reviews';
+import { auth, db } from '../../../firebase.config';
+import { collection, query, where, getDocs, doc, onSnapshot, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 
 const PropertyDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const [isBookingOpen, setIsBookingOpen] = useState(false); // State for Modal state
+    const [isBookingOpen, setIsBookingOpen] = useState(false);
     const [property, setProperty] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const [hasMessaged, setHasMessaged] = useState(false);
+    const [isFavorite, setIsFavorite] = useState(false);
+    const currentUser = auth.currentUser;
 
-    // Mock Data Fetch (Replace with API fetch later if needed)
     useEffect(() => {
-        const MOCK_DB = [
-            {
-                id: 1,
-                title: 'Modern Studio near Trinity',
-                price: 1800,
-                location: 'Dublin 2',
-                description: 'A beautiful studio apartment located just 5 minutes walk from Trinity College. Fully furnished with high-speed wifi included.',
-                amenities: ['Wifi', 'Bills Included', 'Central Heating', 'Washing Machine'],
-                broker: { name: 'Conor O\'Brien', verified: true },
-                images: ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267']
-            },
-            // Simple fallback if ID doesn't match mock
-            {
-                id: parseInt(id),
-                title: 'Sample Property',
-                price: 1500,
-                location: 'Dublin',
-                description: 'Great property.',
-                amenities: ['Wifi'],
-                broker: { name: 'StayNest Broker', verified: true },
-                images: ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267']
-            }
-        ];
+        if (!currentUser || !id) return;
 
-        const found = MOCK_DB.find(p => p.id === parseInt(id)) || MOCK_DB[0];
-        setProperty(found);
+        const unsubscribe = onSnapshot(doc(db, "users", currentUser.uid), (doc) => {
+            if (doc.exists()) {
+                const favorites = doc.data().favorites || [];
+                setIsFavorite(favorites.includes(id));
+            }
+        });
+
+        return () => unsubscribe();
+    }, [currentUser, id]);
+
+    const toggleFavorite = async (e) => {
+        e.stopPropagation();
+        if (!currentUser) {
+            alert("Please login to save favorites.");
+            navigate('/login');
+            return;
+        }
+
+        const userRef = doc(db, "users", currentUser.uid);
+        try {
+            if (isFavorite) {
+                await updateDoc(userRef, { favorites: arrayRemove(id) });
+            } else {
+                await updateDoc(userRef, { favorites: arrayUnion(id) });
+            }
+        } catch (error) {
+            console.error("Error updating favorites:", error);
+        }
+    };
+
+    const handleShare = async () => {
+        const shareData = {
+            title: property?.title || 'StayNest Property',
+            text: `Check out this property on StayNest: ${property?.title}`,
+            url: window.location.href
+        };
+
+        try {
+            if (navigator.share) {
+                await navigator.share(shareData);
+            } else {
+                // Fallback: Copy to clipboard
+                await navigator.clipboard.writeText(window.location.href);
+                alert("Link copied to clipboard!");
+            }
+        } catch (err) {
+            console.error("Error sharing:", err);
+        }
+    };
+
+    useEffect(() => {
+        const fetchProperty = async () => {
+            try {
+                const response = await fetch(`http://localhost:5000/api/listings`);
+                if (response.ok) {
+                    const data = await response.json();
+                    const found = data.find(p => p.id === id);
+                    if (found) {
+                        setProperty(found);
+                        const brokerId = found.ownerUid || found.brokerId;
+                        if (!brokerId) {
+                            console.warn("Property listing is missing both ownerUid and brokerId:", found);
+                        }
+                        // Check if current user has messaged this broker
+                        checkMessageHistory(brokerId);
+                    }
+                }
+            } catch (error) {
+                console.error("Error fetching property:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchProperty();
+
+        // Increment view count
+        fetch(`http://localhost:5000/api/listings/${id}/view`, { method: 'PUT' })
+            .catch(err => console.error("Error incrementing view count:", err));
     }, [id]);
 
-    if (!property) return <div style={{ padding: '20px' }}>Loading...</div>;
+    const checkMessageHistory = async (brokerId) => {
+        const user = auth.currentUser;
+        if (!user || !brokerId) return;
+
+        try {
+            const q = query(
+                collection(db, "chats"),
+                where("participants", "array-contains", user.uid)
+            );
+            const querySnapshot = await getDocs(q);
+            // Check if any chat exists with the broker
+            const exists = querySnapshot.docs.some(doc => doc.data().participants.includes(brokerId));
+            setHasMessaged(exists);
+        } catch (error) {
+            console.error("Error checking message history:", error);
+        }
+    };
+
+    if (loading) return (
+        <div style={{ padding: '100px', textAlign: 'center' }}>
+            <div className="spinner-small" style={{ margin: '0 auto' }}></div>
+            <p>Loading your next home...</p>
+        </div>
+    );
+
+    if (!property) return (
+        <div style={{ padding: '40px', textAlign: 'center' }}>
+            <h2 style={{ color: '#222' }}>Aww, we couldn't find that property.</h2>
+            <button className="btn-primary" onClick={() => navigate('/tenant/dashboard')}>Back to Search</button>
+        </div>
+    );
+
+    const images = property.images && property.images.length > 0 ? property.images : [property.image || 'https://via.placeholder.com/800x600?text=No+Photo'];
+
+    const getIconForAmenity = (name) => {
+        const icons = {
+            'Wifi': 'wifi',
+            'Heating': 'wb_sunny',
+            'Bins': 'delete_outline',
+            'Parking': 'local_parking',
+            'Ensuite': 'bathtub',
+            'Kitchen': 'restaurant',
+            'Laundry': 'local_laundry_service',
+            'Gym': 'fitness_center',
+            'Desk Space': 'desktop_mac',
+            'Elevator': 'elevator',
+            'Security': 'security',
+            'Fridge': 'kitchen',
+            'Microwave': 'microwave',
+            'TV': 'tv',
+            'Diswasher': 'flatware'
+        };
+        return icons[name] || 'check_circle_outline';
+    };
 
     return (
-        <div style={{ paddingBottom: '80px', background: 'white', minHeight: '100vh' }}>
-            <div style={{ position: 'relative', height: '300px' }}>
-                <img src={property.images[0]} alt={property.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                <button
-                    onClick={() => navigate(-1)}
-                    style={{ position: 'absolute', top: '20px', left: '20px', background: 'white', border: 'none', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}
-                >
+        <div style={{ paddingBottom: '120px', background: 'white', minHeight: '100vh', position: 'relative' }}>
+            {/* Nav Header */}
+            <div style={{ position: 'absolute', top: '16px', left: '16px', right: '16px', zIndex: 100, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <button onClick={() => navigate(-1)} className="heart-button" style={{ background: 'white' }}>
                     <span className="material-icons-round">arrow_back</span>
                 </button>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                    <button onClick={handleShare} className="heart-button" style={{ background: 'white' }}>
+                        <span className="material-icons-round">share</span>
+                    </button>
+                    <button
+                        onClick={toggleFavorite}
+                        className={`heart-button ${isFavorite ? 'active' : ''}`}
+                        style={{ background: 'white' }}
+                    >
+                        <span className="material-icons-round">
+                            {isFavorite ? 'favorite' : 'favorite_border'}
+                        </span>
+                    </button>
+                </div>
             </div>
 
-            <div style={{ padding: '24px' }}>
+            {/* Premium Hero Gallery */}
+            <div style={{ position: 'relative', height: '400px', background: '#f5f5f5', overflow: 'hidden' }}>
+                <img
+                    src={images[currentImageIndex]}
+                    alt={property.title}
+                    className="animate-fade"
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+
+                {/* Image Overlay Controls */}
+                <div style={{ position: 'absolute', bottom: '24px', right: '24px', display: 'flex', gap: '8px' }}>
+                    <div className="glass-panel" style={{ color: 'white', padding: '8px 16px', borderRadius: '30px', fontSize: '13px', fontWeight: '700', background: 'rgba(0,0,0,0.5)', border: 'none' }}>
+                        {currentImageIndex + 1} / {images.length}
+                    </div>
+                </div>
+
+                {images.length > 1 && (
+                    <>
+                        <button
+                            onClick={() => setCurrentImageIndex(prev => (prev > 0 ? prev - 1 : images.length - 1))}
+                            style={{ ...navButtonStyle, left: '24px', width: '40px', height: '40px', background: 'rgba(255,255,255,0.9)' }}
+                        >
+                            <span className="material-icons-round">chevron_left</span>
+                        </button>
+                        <button
+                            onClick={() => setCurrentImageIndex(prev => (prev < images.length - 1 ? prev + 1 : 0))}
+                            style={{ ...navButtonStyle, right: '24px', width: '40px', height: '40px', background: 'rgba(255,255,255,0.9)' }}
+                        >
+                            <span className="material-icons-round">chevron_right</span>
+                        </button>
+                    </>
+                )}
+            </div>
+
+            <div style={{ padding: '32px 24px', maxWidth: '800px', margin: '0 auto' }}>
+                {/* Title and Badge Section */}
+                <div style={{ color: 'var(--color-brand)', fontWeight: '800', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>
+                    Verified Premium Property
+                </div>
+
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '16px' }}>
-                    <h1 style={{ fontSize: '24px', margin: 0, lineHeight: 1.2 }}>{property.title}</h1>
-                    <span style={{ fontSize: '20px', fontWeight: 'bold', color: 'var(--color-primary)' }}>€{property.price}<span style={{ fontSize: '14px', color: '#666' }}>/mo</span></span>
+                    <h1 style={{ fontSize: '32px', margin: 0, fontWeight: '800', color: 'var(--color-text-pri)', letterSpacing: '-0.5px' }}>
+                        {property.title}
+                    </h1>
                 </div>
 
-                <div style={{ display: 'flex', gap: '8px', marginBottom: '24px' }}>
-                    <span style={{ background: '#e6f4f1', color: 'var(--color-primary-dark)', padding: '6px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' }}>
-                        Bills Included
-                    </span>
-                    <span style={{ background: '#f3f4f6', color: '#666', padding: '6px 12px', borderRadius: '20px', fontSize: '12px' }}>
-                        Studio
-                    </span>
+                <div style={{ display: 'flex', gap: '20px', alignItems: 'center', marginBottom: '32px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span className="material-icons-round" style={{ fontSize: '18px', color: '#F59E0B' }}>star</span>
+                        <span style={{ fontWeight: '800', fontSize: '15px' }}>{property.rating || 'New'}</span>
+                        <span style={{ color: 'var(--color-text-sec)', fontSize: '14px', textDecoration: 'underline' }}>({property.reviewCount || 0} reviews)</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--color-text-sec)', fontSize: '15px', fontWeight: '500' }}>
+                        <span className="material-icons-round" style={{ fontSize: '18px' }}>location_on</span>
+                        {property.location}
+                    </div>
                 </div>
 
-                <h3 style={{ fontSize: '18px' }}>Description</h3>
-                <p style={{ color: '#555', lineHeight: 1.6 }}>{property.description}</p>
+                <div style={{ borderTop: '1px solid #F1F5F9', borderBottom: '1px solid #F1F5F9', padding: '24px 0', marginBottom: '32px', display: 'flex', justifyContent: 'space-around' }}>
+                    <div style={{ textAlign: 'center' }}>
+                        <span className="material-icons-round" style={{ color: 'var(--color-text-hint)', display: 'block', marginBottom: '6px' }}>home</span>
+                        <span style={{ fontSize: '13px', fontWeight: '700' }}>{property.subType || property.type || 'Entire Flat'}</span>
+                    </div>
+                    <div style={{ textAlign: 'center' }}>
+                        <span className="material-icons-round" style={{ color: 'var(--color-text-hint)', display: 'block', marginBottom: '6px' }}>bed</span>
+                        <span style={{ fontSize: '13px', fontWeight: '700' }}>{property.bedrooms || 0} {(property.bedrooms === '1' || property.bedrooms === 1) ? 'Bedroom' : 'Bedrooms'}</span>
+                    </div>
+                    <div style={{ textAlign: 'center' }}>
+                        <span className="material-icons-round" style={{ color: 'var(--color-text-hint)', display: 'block', marginBottom: '6px' }}>groups</span>
+                        <span style={{ fontSize: '13px', fontWeight: '700' }}>Up to {property.guests || 1} {property.guests === '1' || property.guests === 1 ? 'GUEST' : 'GUESTS'}</span>
+                    </div>
+                </div>
 
-                <h3 style={{ fontSize: '18px', marginTop: '24px' }}>Amenities</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '12px' }}>
-                    {property.amenities.map(item => (
-                        <div key={item} style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#666' }}>
-                            <span className="material-icons-round" style={{ color: 'var(--color-primary)', fontSize: '20px' }}>check_circle</span>
-                            {item}
+                <h3 style={{ fontSize: '22px', fontWeight: '800', marginBottom: '16px' }}>Description</h3>
+                <p style={{ color: 'var(--color-text-sec)', lineHeight: '1.8', fontSize: '16px', marginBottom: '40px', fontWeight: '400' }}>
+                    {property.description}
+                </p>
+
+                <h3 style={{ fontSize: '22px', fontWeight: '800', marginBottom: '20px' }}>What this place offers</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '16px', marginBottom: '48px' }}>
+                    {property.amenities && property.amenities.map(item => (
+                        <div key={item} style={{
+                            padding: '16px',
+                            border: '1px solid #F1F5F9',
+                            borderRadius: '16px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '12px',
+                            background: 'white'
+                        }}>
+                            <span className="material-icons-round" style={{ fontSize: '20px', color: 'var(--color-brand)' }}>
+                                {getIconForAmenity(item)}
+                            </span>
+                            <span style={{ fontSize: '14px', fontWeight: '600', color: 'var(--color-text-pri)' }}>{item}</span>
                         </div>
                     ))}
                 </div>
 
-                <div style={{ marginTop: '32px', padding: '16px', background: '#F9FAFB', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    <div style={{ width: '48px', height: '48px', background: '#ddd', borderRadius: '50%' }}></div>
-                    <div style={{ flex: 1 }}>
-                        <h4 style={{ margin: 0 }}>{property.broker.name}</h4>
-                        {property.broker.verified && <span style={{ color: 'green', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}><span className="material-icons-round" style={{ fontSize: '14px' }}>verified</span> Verified Broker</span>}
+                {/* Broker High-end Card */}
+                <div className="premium-card" style={{ padding: '24px', display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '48px', background: '#F8FAFC', border: 'none' }}>
+                    <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+                        <span className="material-icons-round" style={{ fontSize: '32px', color: 'var(--color-brand)' }}>verified_user</span>
                     </div>
-                    <button className="btn-primary" style={{ width: 'auto', padding: '8px 16px' }} onClick={() => navigate('/messages/1')}>Message</button>
+                    <div style={{ flex: 1 }}>
+                        <h4 style={{ margin: '0 0 4px 0', fontSize: '18px', fontWeight: '800' }}>Verified Host</h4>
+                        <p style={{ margin: 0, color: 'var(--color-text-sec)', fontSize: '14px' }}>Typically responds within an hour</p>
+                    </div>
+                    <button
+                        onClick={() => navigate(`/messages/${property.ownerUid || 'admin'}`)}
+                        style={{ background: 'white', border: '1px solid #E2E8F0', padding: '10px 18px', borderRadius: '12px', fontWeight: '700', fontSize: '14px', cursor: 'pointer' }}
+                    >
+                        Contact
+                    </button>
                 </div>
 
-                {/* Reviews Section */}
-                <Reviews />
+                <Reviews propertyId={id} canWrite={hasMessaged} />
             </div>
 
-            <div style={{ position: 'fixed', bottom: 0, left: 0, width: '100%', padding: '16px', background: 'white', borderTop: '1px solid #eee', display: 'flex', gap: '12px' }}>
-                <button className="btn-primary" style={{ flex: 1 }} onClick={() => setIsBookingOpen(true)}>Request Viewing</button>
-                <button style={{ width: '50px', border: '1px solid #ddd', borderRadius: '12px', background: 'white' }}>
-                    <span className="material-icons-round" style={{ color: '#666' }}>favorite_border</span>
+            {/* Premium Sticky Footer */}
+            <div className="glass-panel" style={{
+                position: 'fixed',
+                bottom: '24px',
+                left: '24px',
+                right: '24px',
+                padding: '16px 24px',
+                borderRadius: '24px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                zIndex: 1000,
+                animation: 'slideInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1)'
+            }}>
+                <div>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+                        <span style={{ fontSize: '24px', fontWeight: '900', color: 'var(--color-brand)' }}>€{property.price}</span>
+                        <span style={{ fontSize: '14px', color: 'var(--color-text-sec)', fontWeight: '600' }}>/ month</span>
+                    </div>
+                    <div style={{ fontSize: '11px', fontWeight: '800', color: property.billsIncluded ? 'var(--color-success)' : 'var(--color-text-hint)', textTransform: 'uppercase', marginTop: '2px' }}>
+                        {property.billsIncluded ? 'All bills included' : 'Utilities not included'}
+                    </div>
+                </div>
+                <button
+                    className="btn-primary"
+                    style={{ padding: '14px 32px', borderRadius: '16px', width: 'auto' }}
+                    onClick={() => navigate(`/messages/${property.ownerUid || 'admin'}`, {
+                        state: {
+                            propertyId: id,
+                            propertyTitle: property.title
+                        }
+                    })}
+                >
+                    Message Broker
                 </button>
             </div>
-
-            <BookingModal
-                isOpen={isBookingOpen}
-                onClose={() => setIsBookingOpen(false)}
-                propertyTitle={property.title}
-            />
         </div>
     );
+};
+
+const roundButtonStyle = {
+    background: 'white',
+    border: 'none',
+    borderRadius: '50%',
+    width: '40px',
+    height: '40px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+    cursor: 'pointer'
+};
+
+const navButtonStyle = {
+    position: 'absolute',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    background: 'rgba(255,255,255,0.8)',
+    border: 'none',
+    borderRadius: '50%',
+    width: '32px',
+    height: '32px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer'
+};
+
+const statBoxStyle = {
+    flex: 1,
+    padding: '12px',
+    border: '1px solid #ddd',
+    borderRadius: '12px',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '4px',
+    color: '#222'
 };
 
 export default PropertyDetails;
