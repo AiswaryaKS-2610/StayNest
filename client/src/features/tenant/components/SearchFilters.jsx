@@ -242,6 +242,7 @@ const SearchFilters = ({ onFilterChange, initialFilters }) => {
                     <span className="material-icons-round" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '18px', color: 'var(--color-brand)', pointerEvents: 'none' }}>school</span>
                 </div>
 
+
                 <div
                     onClick={() => handleChange('billsIncluded', !filters.billsIncluded)}
                     style={{

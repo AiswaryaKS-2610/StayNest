@@ -174,6 +174,19 @@ const PropertyDetails = () => {
                             {isFavorite ? 'favorite' : 'favorite_border'}
                         </span>
                     </button>
+                    <button
+                        onClick={() => {
+                            if (window.confirm("Report this listing as suspicious?")) {
+                                // In a real app, this would open a modal for details
+                                alert("Thank you. Our safety team will review this listing shortly.");
+                            }
+                        }}
+                        className="heart-button"
+                        style={{ background: 'white', color: '#EF4444' }}
+                        title="Report Listing"
+                    >
+                        <span className="material-icons-round">flag</span>
+                    </button>
                 </div>
             </div>
 

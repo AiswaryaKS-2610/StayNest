@@ -18,23 +18,16 @@ const AdminDashboard = () => {
                 const user = auth.currentUser;
                 const token = await user.getIdToken();
 
-                // Fetch pending listings
-                const resListings = await fetch('http://localhost:5000/api/admin/listings/pending', {
+                const res = await fetch('http://localhost:5000/api/admin/stats', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
-                const pendingListings = await resListings.json();
-
-                // Fetch brokers
-                const resBrokers = await fetch('http://localhost:5000/api/admin/brokers', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const brokers = await resBrokers.json();
+                const data = await res.json();
 
                 setStats({
-                    pendingListings: pendingListings.length,
-                    unverifiedBrokers: brokers.filter(b => !b.verified).length,
-                    totalListings: '...', // Separate API would be needed for total count
-                    totalBrokers: brokers.length
+                    pendingListings: data.pendingListings,
+                    unverifiedBrokers: data.unverifiedBrokers,
+                    totalListings: data.totalListings,
+                    totalBrokers: data.totalBrokers
                 });
             } catch (err) {
                 console.error("Stats fetch error:", err);
@@ -61,6 +54,20 @@ const AdminDashboard = () => {
                     icon="pending_actions"
                     color="#F59E0B"
                     onClick={() => navigate('/admin/listings')}
+                />
+                <StatCard
+                    title="Total Listings"
+                    value={stats.totalListings}
+                    icon="home_work"
+                    color="#3B82F6"
+                    onClick={() => { }}
+                />
+                <StatCard
+                    title="Total Brokers"
+                    value={stats.totalBrokers}
+                    icon="people"
+                    color="#10B981"
+                    onClick={() => navigate('/admin/brokers')}
                 />
             </div>
 

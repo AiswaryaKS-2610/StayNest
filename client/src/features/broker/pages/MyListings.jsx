@@ -21,7 +21,11 @@ const MyListings = () => {
                 const data = await res.json();
                 setListings(data);
             } catch (err) {
-                console.error(err);
+                console.error("Error loading listings:", err);
+                // If it's a fetch error or auth error, show it
+                if (err.message && (err.message.includes('401') || err.message.includes('403'))) {
+                    alert("Sync Error: Your client and server might be connected to different Firebase projects. Check console for details.");
+                }
             } finally {
                 setLoading(false);
             }

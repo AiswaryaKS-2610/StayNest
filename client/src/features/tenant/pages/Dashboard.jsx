@@ -18,6 +18,8 @@ const Dashboard = () => {
         searchPlace: '',
         billsIncluded: false
     });
+    const [sortBy, setSortBy] = useState('recommended');
+    const [quickFilters, setQuickFilters] = useState([]);
     const [searchCoords, setSearchCoords] = useState(null);
 
     // ... (CAMPUS_LOCATIONS and getDistance remain same)
@@ -90,10 +92,17 @@ const Dashboard = () => {
         let result = [...listings];
 
         // 1. Basic Filters
-        result = result.filter(item => item.price <= activeFilters.maxPrice);
+        result = result.filter(item => {
+            const price = parseFloat(item.price);
+            return price <= activeFilters.maxPrice;
+        });
 
         if (activeFilters.billsIncluded) {
-            result = result.filter(item => item.tags && item.tags.includes('bills'));
+            result = result.filter(item => {
+                const hasBills = item.tags && item.tags.includes('bills');
+                const flagBills = item.billsIncluded === true;
+                return hasBills || flagBills;
+            });
         }
 
         // 2. Proximity-based Search
@@ -133,6 +142,28 @@ const Dashboard = () => {
             });
         }
 
+        // 4. Quick Filters (Amenities)
+        if (quickFilters.length > 0) {
+            console.log("Applying Quick Filters...");
+            result = result.filter(item => {
+                // Combine 'tags' and 'amenities' arrays if both exist for backward compatibility
+                const itemAmenities = [
+                    ...(item.amenities || []),
+                    ...(item.tags || [])
+                ].map(a => a.toLowerCase().trim());
+
+                const match = quickFilters.every(filter => {
+                    // Check exact match or partial match for things like 'Gym' vs 'Gym Access'
+                    return itemAmenities.some(ia => ia.includes(filter.toLowerCase()));
+                });
+
+                if (!match) {
+                    // console.log(`Dropped QuickFilter: ${item.title} has ${itemAmenities}`);
+                }
+                return match;
+            });
+        }
+
         // 3. Proximity to College (Secondary Sorting/Annotation)
         if (activeFilters.selectedCollege) {
             const campusCoords = CAMPUS_LOCATIONS[activeFilters.selectedCollege];
@@ -141,15 +172,37 @@ const Dashboard = () => {
                     const dist = getDistance(campusCoords.lat, campusCoords.lng, item.lat, item.lng);
                     return { ...item, distanceToCollege: dist };
                 });
-
-                result.sort((a, b) => a.distanceToCollege - b.distanceToCollege);
             }
         } else {
             result = result.map(item => ({ ...item, distanceToCollege: null }));
         }
 
+        // 5. Sorting
+        switch (sortBy) {
+            case 'price_low':
+                result.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+                break;
+            case 'price_high':
+                result.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+                break;
+            case 'newest':
+                result.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+                break;
+            case 'recommended':
+            default:
+                // If College selected, sort by proximity
+                if (activeFilters.selectedCollege) {
+                    result.sort((a, b) => (a.distanceToCollege || Infinity) - (b.distanceToCollege || Infinity));
+                }
+                // Else if search made, sort by proximity
+                else if (searchCoords) {
+                    result.sort((a, b) => (a.distanceToSearch || Infinity) - (b.distanceToSearch || Infinity));
+                }
+                break;
+        }
+
         setFilteredListings(result);
-    }, [activeFilters, listings, searchCoords, activeCategory]);
+    }, [activeFilters, listings, searchCoords, activeCategory, sortBy, quickFilters]);
 
     return (
         <div style={{ padding: '16px', paddingBottom: '90px', maxWidth: '600px', margin: '0 auto' }}>
@@ -187,6 +240,63 @@ const Dashboard = () => {
                     initialFilters={activeFilters}
                     onFilterChange={(newFilters) => setActiveFilters(prev => ({ ...prev, ...newFilters }))}
                 />
+
+                {/* Quick Filters & Sorting */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px', gap: '12px' }}>
+                    <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px', flex: 1, scrollbarWidth: 'none' }}>
+                        {['Wifi', 'Ensuite', 'Studio', 'Gym', 'Parking'].map(tag => {
+                            const active = quickFilters.includes(tag);
+                            return (
+                                <button
+                                    key={tag}
+                                    onClick={() => setQuickFilters(prev => active ? prev.filter(t => t !== tag) : [...prev, tag])}
+                                    style={{
+                                        padding: '6px 14px',
+                                        borderRadius: '20px',
+                                        border: `1px solid ${active ? 'var(--color-brand)' : '#E2E8F0'}`,
+                                        background: active ? '#EFF6FF' : 'white',
+                                        color: active ? 'var(--color-brand)' : '#64748B',
+                                        fontSize: '12px',
+                                        fontWeight: '700',
+                                        whiteSpace: 'nowrap',
+                                        cursor: 'pointer',
+                                        transition: 'all 0.2s'
+                                    }}
+                                >
+                                    {tag}
+                                </button>
+                            );
+                        })}
+                    </div>
+
+                    <div style={{ position: 'relative' }}>
+                        <select
+                            value={sortBy}
+                            onChange={(e) => setSortBy(e.target.value)}
+                            style={{
+                                appearance: 'none',
+                                background: 'white',
+                                border: '1px solid #E2E8F0',
+                                padding: '8px 32px 8px 12px',
+                                borderRadius: '12px',
+                                fontSize: '12px',
+                                fontWeight: '700',
+                                color: 'var(--color-text-pri)',
+                                cursor: 'pointer',
+                                outline: 'none'
+                            }}
+                        >
+                            <option value="recommended">Recommended</option>
+                            <option value="newest">Newest</option>
+                            <option value="price_low">Price: Low to High</option>
+                            <option value="price_high">Price: High to Low</option>
+                        </select>
+                        <span className="material-icons-round" style={{
+                            position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)',
+                            fontSize: '16px', color: '#64748B', pointerEvents: 'none'
+                        }}>sort</span>
+                    </div>
+                </div>
             </div>
 
             {/* Premium Category Tabs */}
@@ -258,7 +368,11 @@ const Dashboard = () => {
                     ))}
                 </div>
             ) : (
-                <MapView listings={listings} center={searchCoords || (activeFilters.selectedCollege ? CAMPUS_LOCATIONS[activeFilters.selectedCollege] : null)} />
+                <MapView
+                    listings={filteredListings}
+                    center={searchCoords || (activeFilters.selectedCollege ? CAMPUS_LOCATIONS[activeFilters.selectedCollege] : null)}
+                    selectedCollege={activeFilters.selectedCollege}
+                />
             )}
 
             <BottomNav />

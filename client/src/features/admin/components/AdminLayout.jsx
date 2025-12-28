@@ -1,17 +1,39 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { auth } from '../../../firebase.config';
-import BottomNav from '../../common/components/BottomNav';
+import { auth, db } from '../../../firebase.config';
+import { doc, getDoc } from 'firebase/firestore';
 
 const AdminLayout = ({ children }) => {
     const navigate = useNavigate();
     const location = useLocation();
+    const [returnPath, setReturnPath] = useState('/tenant/dashboard');
+
+    useEffect(() => {
+        const checkUserRole = async () => {
+            const user = auth.currentUser;
+            if (user) {
+                try {
+                    const docRef = doc(db, "users", user.uid);
+                    const docSnap = await getDoc(docRef);
+                    if (docSnap.exists()) {
+                        const userData = docSnap.data();
+                        if (userData.role === 'broker') {
+                            setReturnPath('/broker/dashboard');
+                        }
+                    }
+                } catch (err) {
+                    console.error("Error fetching user role:", err);
+                }
+            }
+        };
+        checkUserRole();
+    }, []);
 
     const menuItems = [
         { title: 'Dashboard', icon: 'grid_view', path: '/admin' },
         { title: 'Listing Review', icon: 'list_alt', path: '/admin/listings' },
         { title: 'Broker Verifications', icon: 'verified_user', path: '/admin/verifications' },
-        { title: 'Return to App', icon: 'arrow_back', path: '/tenant/dashboard' }
+        { title: 'Return to App', icon: 'arrow_back', path: returnPath }
     ];
 
     const handleLogout = () => {
@@ -20,7 +42,7 @@ const AdminLayout = ({ children }) => {
     };
 
     return (
-        <div style={{ minHeight: '100vh', background: '#F8FAFC', paddingBottom: '80px' }}>
+        <div style={{ minHeight: '100vh', background: '#F8FAFC', paddingBottom: '0' }}>
             {/* Admin Header */}
             <div style={{
                 padding: '16px 24px',
@@ -104,9 +126,6 @@ const AdminLayout = ({ children }) => {
                     {children}
                 </div>
             </div>
-
-            {/* Bottom Nav */}
-            <BottomNav />
         </div>
     );
 };

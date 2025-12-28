@@ -52,7 +52,7 @@ const Login = () => {
                     }}>
                         <span className="material-icons-round" style={{ color: 'white', fontSize: '32px' }}>home</span>
                     </div>
-                    <h1 style={{ fontSize: '32px', fontWeight: '800', margin: '0 0 8px', color: 'var(--color-text-pri)', letterSpacing: '-1px' }}>Welcome Back</h1>
+                    <h1 style={{ fontSize: '32px', fontWeight: '800', margin: '0 0 8px', color: 'var(--color-text-pri)', letterSpacing: '-1px' }}>Welcome Back To StayNest</h1>
                     <p style={{ color: 'var(--color-text-sec)', fontSize: '15px', fontWeight: '500' }}>Login to your premium stay experience</p>
                 </div>
 

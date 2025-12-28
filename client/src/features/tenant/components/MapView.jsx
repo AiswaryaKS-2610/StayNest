@@ -1,62 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap, Tooltip, ZoomControl } from 'react-leaflet';
+import React, { useEffect, useState, useMemo } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, useMap, Tooltip, ZoomControl, Polyline, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import { useNavigate } from 'react-router-dom';
+import 'leaflet/dist/leaflet.css';
 
-// Component to handle map center updates
-function ChangeView({ center }) {
-    const map = useMap();
-    useEffect(() => {
-        if (center) {
-            map.flyTo([center.lat, center.lng], 14, {
-                duration: 1.5
-            });
-        }
-    }, [center, map]);
-    return null;
-}
-
-// Custom Premium Icons
-const propertyIcon = new L.DivIcon({
-    className: 'custom-div-icon',
-    html: `<div style="
-        background: var(--color-brand);
-        width: 36px;
-        height: 36px;
-        border-radius: 50% 50% 50% 0;
-        transform: rotate(-45deg);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        border: 2px solid white;
-    ">
-        <span class="material-icons-round" style="color: white; transform: rotate(45deg); font-size: 18px;">home</span>
-    </div>`,
-    iconSize: [36, 36],
-    iconAnchor: [18, 36],
-    popupAnchor: [0, -36]
-});
-
-const collegeIcon = new L.DivIcon({
-    className: 'custom-div-icon',
-    html: `<div style="
-        background: white;
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 6px 16px rgba(0,0,0,0.15);
-        border: 2px solid var(--color-brand);
-    ">
-        <span class="material-icons-round" style="color: var(--color-brand); font-size: 22px;">school</span>
-    </div>`,
-    iconSize: [40, 40],
-    iconAnchor: [20, 20],
-    popupAnchor: [0, -20]
-});
+// --- CONFIGURATION ---
+const TILE_LAYER_URL = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
 
 const CAMPUS_LOCATIONS = {
     'Trinity College': { lat: 53.3438, lng: -6.2546 },
@@ -72,173 +21,164 @@ const CAMPUS_LOCATIONS = {
     'IADT': { lat: 53.2861, lng: -6.1539 }
 };
 
-const MapView = ({ listings, center }) => {
-    const navigate = useNavigate();
-    const dublinPosition = [53.3498, -6.2603]; // Dublin City Center
-    const [mapInstance, setMapInstance] = useState(null);
+// --- CUSTOM ICONS ---
+const propertyIcon = new L.DivIcon({
+    className: 'custom-div-icon',
+    html: `<div style="background: #2563EB; width: 40px; height: 40px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.4); border: 2px solid white;">
+        <span class="material-icons-round" style="color: white; transform: rotate(45deg); font-size: 20px;">home</span>
+    </div>`,
+    iconSize: [40, 40],
+    iconAnchor: [20, 40],
+    popupAnchor: [0, -42]
+});
 
-    const handleLocateMe = () => {
-        if (!mapInstance) return;
+const collegeIcon = new L.DivIcon({
+    className: 'custom-div-icon',
+    html: `<div style="background: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); border: 2px solid #2563EB;">
+        <span class="material-icons-round" style="color: #2563EB; font-size: 16px;">school</span>
+    </div>`,
+    iconSize: [30, 30],
+    iconAnchor: [15, 15],
+    popupAnchor: [0, -15]
+});
 
-        const options = {
-            enableHighAccuracy: true,
-            timeout: 5000,
-            maximumAge: 0
-        };
+// Helper component to fly to location
+const MapController = ({ center }) => {
+    const map = useMap();
+    useEffect(() => {
+        if (center) {
+            map.flyTo([center.lat, center.lng], 14, {
+                animate: true,
+                duration: 1.5
+            });
+        }
+    }, [center, map]);
+    return null;
+};
 
-        navigator.geolocation.getCurrentPosition(
-            (pos) => {
-                const { latitude, longitude } = pos.coords;
-                mapInstance.flyTo([latitude, longitude], 15);
-            },
-            (err) => {
-                console.error("Geolocation error:", err);
-                alert("Could not get your location. Please ensure GPS is on.");
-            },
-            options
-        );
+const LocationButton = () => {
+    const map = useMap();
+
+    const handleLocate = () => {
+        map.locate().on("locationfound", function (e) {
+            map.flyTo(e.latlng, 14);
+            L.circle(e.latlng, { radius: 100 }).addTo(map);
+        });
     };
 
     return (
-        <div style={{ position: 'relative', height: 'calc(100vh - 180px)', width: '100%', borderRadius: '24px', overflow: 'hidden', marginTop: '16px', boxShadow: '0 12px 40px rgba(0,0,0,0.1)' }}>
+        <button
+            onClick={handleLocate}
+            style={{
+                position: 'absolute', bottom: '100px', right: '10px', zIndex: 999,
+                background: 'white', border: 'none', borderRadius: '8px',
+                width: '34px', height: '34px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: '0 2px 5px rgba(0,0,0,0.2)', cursor: 'pointer'
+            }}
+            title="Locate Me"
+        >
+            <span className="material-icons-round" style={{ color: '#666', fontSize: '20px' }}>my_location</span>
+        </button>
+    );
+};
 
-            {/* Control Overlays */}
-            <div style={{
-                position: 'absolute',
-                top: '20px',
-                left: '20px',
-                zIndex: 1000,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '10px'
-            }}>
-                <button
-                    onClick={handleLocateMe}
-                    style={{
-                        width: '44px',
-                        height: '44px',
-                        borderRadius: '12px',
-                        background: 'white',
-                        border: 'none',
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: 'var(--color-brand)',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s'
-                    }}
-                    onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
-                    onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                >
-                    <span className="material-icons-round">my_location</span>
-                </button>
-            </div>
+const MapView = ({ listings, center, selectedCollege }) => {
+    const navigate = useNavigate();
+    const [activeListing, setActiveListing] = useState(null);
 
-            <div style={{
-                position: 'absolute',
-                top: '20px',
-                right: '20px',
-                zIndex: 1000,
-                background: 'rgba(255, 255, 255, 0.9)',
-                backdropFilter: 'blur(8px)',
-                padding: '10px 16px',
-                borderRadius: '14px',
-                boxShadow: '0 4px 15px rgba(0,0,0,0.08)',
-                border: '1px solid rgba(255,255,255,0.4)',
-                pointerEvents: 'none'
-            }}>
-                <div style={{ fontSize: '12px', fontWeight: '700', color: '#64748B', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span style={{ width: '8px', height: '8px', background: 'var(--color-brand)', borderRadius: '50%' }}></span>
-                    {listings.length} Results Found
-                </div>
-            </div>
+    // Filter colleges based on selection
+    const visibleColleges = useMemo(() => {
+        if (!selectedCollege || selectedCollege === 'All Colleges') {
+            return Object.entries(CAMPUS_LOCATIONS);
+        }
+        return Object.entries(CAMPUS_LOCATIONS).filter(([name]) => name === selectedCollege);
+    }, [selectedCollege]);
 
+    return (
+        <div style={{ position: 'relative', height: '85vh', width: '100%', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 20px 50px rgba(0,0,0,0.1)' }}>
             <MapContainer
-                center={center ? [center.lat, center.lng] : dublinPosition}
+                key="unique-map-id"
+                center={[53.3498, -6.2603]}
                 zoom={13}
-                style={{ height: '100%', width: '100%' }}
                 zoomControl={false}
-                ref={setMapInstance}
+                style={{ height: '100%', width: '100%', background: '#e5e7eb' }}
             >
                 <TileLayer
-                    attribution='&copy; <a href="https://carto.com/attributions">CARTO</a>'
-                    url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+                    attribution='Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, Esri Japan, METI, Esri China (Hong Kong), Esri (Thailand), TomTom, 2012'
+                    url={TILE_LAYER_URL}
                 />
 
                 <ZoomControl position="bottomright" />
+                <LocationButton />
+                <MapController center={center} />
 
-                {center && <ChangeView center={center} />}
-
-                {/* College Markers */}
-                {Object.entries(CAMPUS_LOCATIONS).map(([name, coords]) => (
-                    <Marker
-                        key={name}
-                        position={[coords.lat, coords.lng]}
-                        icon={collegeIcon}
-                    >
-                        <Tooltip permanent direction="top" offset={[0, -20]} opacity={1}>
-                            <div style={{
-                                fontWeight: '800',
-                                color: 'var(--color-brand)',
-                                fontSize: '10px',
-                                background: 'white',
-                                padding: '2px 8px',
-                                borderRadius: '20px',
-                                boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
-                                border: '1px solid var(--color-brand-light)'
-                            }}>{name}</div>
+                {/* College Markers (Filtered) */}
+                {visibleColleges.map(([name, coords]) => (
+                    <Marker key={name} position={[coords.lat, coords.lng]} icon={collegeIcon}>
+                        <Tooltip direction="top" offset={[0, -15]} opacity={1}>
+                            <b style={{ color: '#2563EB' }}>{name}</b>
                         </Tooltip>
                     </Marker>
                 ))}
 
-                {/* Property Markers */}
                 {listings.map(item => (
                     <Marker
                         key={item.id}
                         position={[item.lat, item.lng]}
                         icon={propertyIcon}
+                        eventHandlers={{
+                            click: () => setActiveListing(item),
+                        }}
                     >
-                        <Popup className="glass-popup">
-                            <div
-                                style={{
-                                    minWidth: '220px',
-                                    cursor: 'pointer',
-                                    borderRadius: '16px',
-                                    overflow: 'hidden',
-                                    padding: '0'
-                                }}
-                                onClick={() => navigate(`/property/${item.id}`)}
-                            >
-                                <div style={{ position: 'relative', height: '120px' }}>
-                                    <img src={item.image} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <Tooltip direction="top" offset={[0, -20]} opacity={1} className="custom-tooltip">
+                            <div style={{ padding: '4px 8px', fontWeight: '600', color: '#1e293b' }}>
+                                {item.title}
+                                <div style={{ color: '#2563EB', fontSize: '12px' }}>€{item.price}/mo</div>
+                            </div>
+                        </Tooltip>
+
+                        <Popup className="premium-popup" minWidth={280} maxWidth={280} closeButton={false}>
+                            <div onClick={() => navigate(`/property/${item.id}`)} style={{ cursor: 'pointer' }}>
+                                <div style={{ position: 'relative', height: '160px', width: '100%' }}>
+                                    <img
+                                        src={item.image}
+                                        alt={item.title}
+                                        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                                    />
                                     <div style={{
-                                        position: 'absolute',
-                                        bottom: '8px',
-                                        left: '8px',
-                                        background: 'var(--color-brand)',
-                                        color: 'white',
-                                        padding: '4px 10px',
-                                        borderRadius: '8px',
-                                        fontSize: '14px',
-                                        fontWeight: '800',
-                                        boxShadow: '0 4px 10px rgba(0,0,0,0.2)'
+                                        position: 'absolute', bottom: '12px', left: '12px',
+                                        background: 'rgba(0,0,0,0.75)', color: 'white',
+                                        padding: '4px 12px', borderRadius: '8px',
+                                        fontSize: '15px', fontWeight: '700', backdropFilter: 'blur(4px)'
                                     }}>
-                                        €{item.price}
+                                        €{item.price}/mo
                                     </div>
                                 </div>
-                                <div style={{ padding: '12px' }}>
-                                    <h4 style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: '800', color: '#1E293B' }}>{item.title}</h4>
-                                    <div style={{ display: 'flex', gap: '8px', color: '#64748B', fontSize: '12px', fontWeight: '600' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                            <span className="material-icons-round" style={{ fontSize: '14px' }}>bed</span>
-                                            {item.bedrooms}
+
+                                <div style={{ padding: '16px', background: 'white' }}>
+                                    <h3 style={{ margin: '0 0 8px', fontSize: '16px', fontWeight: '800', color: '#1e293b' }}>
+                                        {item.title}
+                                    </h3>
+
+                                    <div style={{ display: 'flex', gap: '15px', marginBottom: '15px', color: '#64748B', fontSize: '13px', fontWeight: '600' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                            <span className="material-icons-round" style={{ fontSize: '16px' }}>bed</span>
+                                            {item.bedrooms} Beds
                                         </div>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                            <span className="material-icons-round" style={{ fontSize: '14px' }}>people</span>
-                                            {item.guests}
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                            <span className="material-icons-round" style={{ fontSize: '16px' }}>person</span>
+                                            {item.guests} Guests
                                         </div>
                                     </div>
+
+                                    <button style={{
+                                        width: '100%', padding: '12px',
+                                        background: '#2563EB', color: 'white', border: 'none',
+                                        borderRadius: '10px', fontSize: '14px', fontWeight: '600',
+                                        cursor: 'pointer', boxShadow: '0 4px 12px rgba(37, 99, 235, 0.2)'
+                                    }}>
+                                        View Property
+                                    </button>
                                 </div>
                             </div>
                         </Popup>
@@ -246,33 +186,37 @@ const MapView = ({ listings, center }) => {
                 ))}
             </MapContainer>
 
+            {/* STYLES */}
             <style>{`
-                .leaflet-popup-content-wrapper {
-                    border-radius: 20px !important;
+                .premium-popup .leaflet-popup-content-wrapper {
                     padding: 0 !important;
+                    border-radius: 18px !important;
                     overflow: hidden !important;
-                    background: rgba(255, 255, 255, 0.9) !important;
-                    backdrop-filter: blur(12px) !important;
-                    border: 1px solid rgba(255,255,255,0.4) !important;
-                    box-shadow: 0 15px 35px rgba(0,0,0,0.1) !important;
+                    box-shadow: 0 15px 40px rgba(0,0,0,0.25) !important;
                 }
-                .leaflet-popup-content {
+                .premium-popup .leaflet-popup-content {
                     margin: 0 !important;
-                    width: auto !important;
+                    width: 280px !important;
                 }
-                .leaflet-popup-tip {
-                    background: rgba(255, 255, 255, 0.9) !important;
-                    backdrop-filter: blur(12px) !important;
+                .premium-popup .leaflet-popup-tip {
+                    background: white;
                 }
-                .leaflet-marker-icon {
-                    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-                }
-                .leaflet-marker-icon:hover {
-                    transform: scale(1.2) translateY(-5px) rotate(-45deg) !important;
-                    z-index: 1000 !important;
+                .custom-div-icon {
+                    transition: transform 0.2s ease-out;
                 }
                 .custom-div-icon:hover {
-                    transform: scale(1.1) !important;
+                    transform: scale(1.1) rotate(-45deg) translateY(-5px) !important;
+                    z-index: 9999 !important;
+                }
+                .custom-tooltip {
+                    border: none !important;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+                    border-radius: 8px !important;
+                    padding: 0 !important;
+                    overflow: hidden;
+                }
+                .custom-tooltip:before {
+                    display: none;
                 }
             `}</style>
         </div>

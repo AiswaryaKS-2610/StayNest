@@ -8,11 +8,15 @@ const {
     adminDeleteListing,
     getBrokers,
     verifyBroker,
-    blockUser
+    blockUser,
+    getAdminStats
 } = require('../controllers/adminController');
 
 // All routes here require Admin role
 router.use(verifyToken, verifyAdmin);
+
+// Dashboard Stats
+router.get('/stats', getAdminStats);
 
 // Listing Review
 router.get('/listings/pending', getPendingListings);

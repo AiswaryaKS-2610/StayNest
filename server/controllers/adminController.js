@@ -84,6 +84,36 @@ const blockUser = async (req, res) => {
     }
 };
 
+const getAdminStats = async (req, res) => {
+    try {
+        const db = admin.firestore();
+
+        // Parallel fetch for counts
+        const [listingsSnap, usersSnap] = await Promise.all([
+            db.collection('listings').count().get(),
+            db.collection('users').count().get()
+        ]);
+
+        // Note: count() aggregation requires newer Firebase Admin SDK. 
+        // If that fails, we might fall back to Snapshot.size
+
+        const pendingSnap = await db.collection('listings').where('status', '==', 'pending').get();
+        const brokersSnap = await db.collection('users').where('role', '==', 'broker').get();
+        const unverifiedBrokers = brokersSnap.docs.filter(doc => !doc.data().verified).length;
+
+        res.json({
+            totalListings: listingsSnap.data().count,
+            totalUsers: usersSnap.data().count,
+            pendingListings: pendingSnap.size,
+            totalBrokers: brokersSnap.size,
+            unverifiedBrokers
+        });
+    } catch (error) {
+        console.error("Stats Error:", error);
+        res.status(500).json({ message: "Stats fetch failed" });
+    }
+};
+
 module.exports = {
     getPendingListings,
     approveListing,
@@ -91,5 +121,6 @@ module.exports = {
     adminDeleteListing,
     getBrokers,
     verifyBroker,
-    blockUser
+    blockUser,
+    getAdminStats
 };
