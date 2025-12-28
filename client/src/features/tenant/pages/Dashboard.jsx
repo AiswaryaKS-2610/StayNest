@@ -142,10 +142,7 @@ const Dashboard = () => {
                     return { ...item, distanceToCollege: dist };
                 });
 
-                // Only sort by college if no specific area is searched
-                if (!searchCoords) {
-                    result.sort((a, b) => a.distanceToCollege - b.distanceToCollege);
-                }
+                result.sort((a, b) => a.distanceToCollege - b.distanceToCollege);
             }
         } else {
             result = result.map(item => ({ ...item, distanceToCollege: null }));

@@ -10,6 +10,7 @@ const AdminLayout = ({ children }) => {
     const menuItems = [
         { title: 'Dashboard', icon: 'grid_view', path: '/admin' },
         { title: 'Listing Review', icon: 'list_alt', path: '/admin/listings' },
+        { title: 'Broker Verifications', icon: 'verified_user', path: '/admin/verifications' },
         { title: 'Return to App', icon: 'arrow_back', path: '/tenant/dashboard' }
     ];
 
@@ -55,6 +56,46 @@ const AdminLayout = ({ children }) => {
                         <span style={{ fontSize: '12px' }}>Sign Out</span>
                     </button>
                 </div>
+            </div>
+
+            {/* Admin Navigation Menu */}
+            <div style={{
+                background: 'white',
+                borderBottom: '1px solid #E2E8F0',
+                padding: '16px 24px',
+                display: 'flex',
+                gap: '8px',
+                overflowX: 'auto',
+                position: 'sticky',
+                top: '64px',
+                zIndex: 99
+            }}>
+                {menuItems.map(item => (
+                    <button
+                        key={item.path}
+                        onClick={() => navigate(item.path)}
+                        style={{
+                            padding: '12px 20px',
+                            borderRadius: '12px',
+                            border: 'none',
+                            background: location.pathname === item.path ? 'var(--color-brand)' : '#F1F5F9',
+                            color: location.pathname === item.path ? 'white' : '#64748B',
+                            fontWeight: '700',
+                            fontSize: '14px',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            whiteSpace: 'nowrap',
+                            transition: 'all 0.2s'
+                        }}
+                    >
+                        <span className="material-icons-round" style={{ fontSize: '18px' }}>
+                            {item.icon}
+                        </span>
+                        {item.title}
+                    </button>
+                ))}
             </div>
 
             {/* Main Content */}

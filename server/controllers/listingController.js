@@ -6,7 +6,24 @@ const getListings = async (req, res) => {
         const snapshot = await db.collection('listings')
             .where('status', '==', 'approved')
             .get();
-        const listings = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+        // Fetch all verified brokers to avoid multiple hits
+        const verifiedUsersSnapshot = await db.collection('users')
+            .where('isVerified', '==', true)
+            .get();
+
+        const verifiedUserIds = new Set();
+        verifiedUsersSnapshot.forEach(doc => verifiedUserIds.add(doc.id));
+
+        const listings = snapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+                id: doc.id,
+                ...data,
+                brokerVerified: verifiedUserIds.has(data.ownerUid)
+            };
+        });
+
         res.json(listings);
     } catch (error) {
         console.error("Firestore Get Error:", error);
@@ -18,12 +35,24 @@ const getBrokerListings = async (req, res) => {
     try {
         const uid = req.user.uid;
         const db = admin.firestore();
+
+        // Check if broker is verified
+        const userDoc = await db.collection('users').doc(uid).get();
+        const isVerified = userDoc.exists && userDoc.data().isVerified === true;
+
         const snapshot = await db.collection('listings')
             .where('ownerUid', '==', uid)
             .get();
-        const listings = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+        const listings = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+            brokerVerified: isVerified
+        }));
+
         res.json(listings);
     } catch (error) {
+        console.error("Broker Listings Error:", error);
         res.status(500).json({ message: "Error fetching your listings" });
     }
 };

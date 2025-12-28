@@ -14,6 +14,7 @@ import BrokerLayout from './features/broker/components/BrokerLayout';
 import AdminDashboard from './features/admin/pages/AdminDashboard';
 import AdminListingReview from './features/admin/pages/AdminListingReview';
 import AdminBrokerManagement from './features/admin/pages/AdminBrokerManagement';
+import AdminVerifications from './features/admin/pages/AdminVerifications';
 import AdminLayout from './features/admin/components/AdminLayout';
 
 import Inbox from './features/chat/pages/Inbox';
@@ -59,6 +60,7 @@ function App() {
         <Route path="/admin" element={<AdminLayout><AdminDashboard /></AdminLayout>} />
         <Route path="/admin/listings" element={<AdminLayout><AdminListingReview /></AdminLayout>} />
         <Route path="/admin/brokers" element={<AdminLayout><AdminBrokerManagement /></AdminLayout>} />
+        <Route path="/admin/verifications" element={<AdminLayout><AdminVerifications /></AdminLayout>} />
       </Routes>
     </div>
   );

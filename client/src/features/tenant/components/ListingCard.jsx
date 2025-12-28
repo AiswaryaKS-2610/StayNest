@@ -89,6 +89,24 @@ const ListingCard = ({ listing, isBrokerView = false }) => {
                             Bills
                         </div>
                     )}
+                    {listing.brokerVerified && (
+                        <div style={{
+                            background: 'linear-gradient(135deg, #3B82F6, #1E3A8A)',
+                            padding: '6px 12px',
+                            borderRadius: '30px',
+                            fontSize: '11px',
+                            fontWeight: '800',
+                            textTransform: 'uppercase',
+                            color: 'white',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)'
+                        }}>
+                            <span className="material-icons-round" style={{ fontSize: '14px' }}>verified</span>
+                            Verified Host
+                        </div>
+                    )}
                 </div>
 
                 {!isBrokerView && (
@@ -160,7 +178,7 @@ const ListingCard = ({ listing, isBrokerView = false }) => {
                             Edit Details
                         </button>
                     ) : (
-                        listing.distanceToCollege !== undefined && listing.distanceToCollege !== null && (
+                        (listing.distanceToCollege !== undefined && listing.distanceToCollege !== null) ? (
                             <div style={{
                                 background: 'var(--color-brand-light)',
                                 color: 'var(--color-brand)',
@@ -177,7 +195,25 @@ const ListingCard = ({ listing, isBrokerView = false }) => {
                                     ? `${Math.round(listing.distanceToCollege * 1000)}m`
                                     : `${listing.distanceToCollege.toFixed(1)}km`}
                             </div>
-                        )
+                        ) : (listing.distanceToSearch !== undefined && listing.distanceToSearch !== null && (
+                            <div style={{
+                                background: 'var(--color-brand)',
+                                color: 'white',
+                                padding: '6px 14px',
+                                borderRadius: '12px',
+                                fontSize: '12px',
+                                fontWeight: '700',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                boxShadow: '0 2px 8px rgba(30, 58, 138, 0.2)'
+                            }}>
+                                <span className="material-icons-round" style={{ fontSize: '16px' }}>location_on</span>
+                                {listing.distanceToSearch < 1
+                                    ? `${Math.round(listing.distanceToSearch * 1000)}m`
+                                    : `${listing.distanceToSearch.toFixed(1)}km`}
+                            </div>
+                        ))
                     )}
                 </div>
             </div>

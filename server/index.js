@@ -22,10 +22,12 @@ app.use(express.json());
 const listingRoutes = require('./routes/listingRoutes');
 const userRoutes = require('./routes/userRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const verificationRoutes = require('./routes/verificationRoutes');
 
 app.use('/api/listings', listingRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/verifications', verificationRoutes);
 
 app.get('/', (req, res) => {
     res.send('StayNest API is running 🚀');

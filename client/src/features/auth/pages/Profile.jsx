@@ -116,8 +116,11 @@ const Profile = () => {
                     <div style={{ position: 'absolute', bottom: 0, width: '100%', background: 'rgba(0,0,0,0.3)', padding: '2px 0', fontSize: '10px', fontWeight: '700' }}>EDIT</div>
                 </div>
                 <input type="file" id="profile-pic-input" hidden onChange={handleProfilePicChange} accept="image/*" />
-                <h2 style={{ margin: '0 0 6px', fontSize: '22px', fontWeight: '800', color: 'var(--color-text-pri)' }}>
+                <h2 style={{ margin: '0 0 6px', fontSize: '22px', fontWeight: '800', color: 'var(--color-text-pri)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                     {user?.fullName || 'User Name'}
+                    {user?.isVerified && (
+                        <span className="material-icons-round" style={{ color: '#3B82F6', fontSize: '20px' }}>verified</span>
+                    )}
                 </h2>
                 <p style={{ color: '#64748B', margin: 0, fontSize: '15px', fontWeight: '500' }}>
                     {user?.email}
@@ -136,6 +139,21 @@ const Profile = () => {
                 }}>
                     {user?.role || 'Tenant'}
                 </div>
+                {user?.isVerified && (
+                    <div style={{
+                        marginTop: '12px',
+                        fontSize: '12px',
+                        fontWeight: '700',
+                        color: '#059669',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '4px'
+                    }}>
+                        <span className="material-icons-round" style={{ fontSize: '14px' }}>check_circle</span>
+                        VERIFIED PARTNER
+                    </div>
+                )}
             </div>
 
             <div style={{ marginTop: '8px' }}>

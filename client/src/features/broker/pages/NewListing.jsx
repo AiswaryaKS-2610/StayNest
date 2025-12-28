@@ -22,7 +22,14 @@ const NewListing = () => {
     const handleImageChange = (e) => {
         if (e.target.files) {
             const files = Array.from(e.target.files);
-            setImages(prev => [...prev, ...files]);
+            const validFiles = files.filter(file => {
+                const isValidSize = file.size <= 10 * 1024 * 1024; // 10MB limit
+                if (!isValidSize) {
+                    alert(`File ${file.name} is too large. Max size is 10MB.`);
+                }
+                return isValidSize;
+            });
+            setImages(prev => [...prev, ...validFiles]);
         }
     };
 
@@ -74,7 +81,11 @@ const NewListing = () => {
                 body: data
             });
 
-            if (!response.ok) throw new Error('Cloudinary upload failed');
+            if (!response.ok) {
+                const errorDetails = await response.json();
+                console.error("Cloudinary Error Details:", errorDetails);
+                throw new Error(errorDetails.error?.message || 'Cloudinary upload failed');
+            }
             const result = await response.json();
             return result.secure_url;
         });
@@ -97,14 +108,25 @@ const NewListing = () => {
             const token = await user.getIdToken();
 
             // Store in Cloudinary first
-            const uploadedUrls = await uploadImages();
+            let uploadedUrls = [];
+            try {
+                uploadedUrls = await uploadImages();
+            } catch (err) {
+                throw new Error(`Cloudinary Upload Failed: ${err.message || err}`);
+            }
 
             // Geocode using Eircode for precision with fallback
             let lat = 53.3498, lng = -6.2603; // Default Dublin
             try {
+                // Ireland bounding box validation
+                const isInIreland = (latitude, longitude) => {
+                    return latitude >= 51.4 && latitude <= 55.4 &&
+                        longitude >= -10.5 && longitude <= -5.5;
+                };
+
                 // Try 1: Eircode (Most precise)
                 let geoRes = await fetch(
-                    `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(formData.eircode + ', Ireland')}`,
+                    `https://nominatim.openstreetmap.org/search?format=json&countrycodes=ie&q=${encodeURIComponent(formData.eircode + ', Ireland')}`,
                     { headers: { 'User-Agent': 'StayNest-App' } }
                 );
                 let geoData = await geoRes.json();
@@ -112,7 +134,7 @@ const NewListing = () => {
                 // Try 2: Eircode + Location (More context)
                 if (!geoData || geoData.length === 0) {
                     geoRes = await fetch(
-                        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(formData.eircode + ', ' + formData.location + ', Ireland')}`,
+                        `https://nominatim.openstreetmap.org/search?format=json&countrycodes=ie&q=${encodeURIComponent(formData.eircode + ', ' + formData.location + ', Ireland')}`,
                         { headers: { 'User-Agent': 'StayNest-App' } }
                     );
                     geoData = await geoRes.json();
@@ -121,46 +143,65 @@ const NewListing = () => {
                 // Try 3: Location only (Fallback)
                 if (!geoData || geoData.length === 0) {
                     geoRes = await fetch(
-                        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(formData.location + ', Ireland')}`,
+                        `https://nominatim.openstreetmap.org/search?format=json&countrycodes=ie&q=${encodeURIComponent(formData.location + ', Dublin, Ireland')}`,
                         { headers: { 'User-Agent': 'StayNest-App' } }
                     );
                     geoData = await geoRes.json();
                 }
 
                 if (geoData && geoData.length > 0) {
-                    lat = parseFloat(geoData[0].lat);
-                    lng = parseFloat(geoData[0].lon);
+                    const tempLat = parseFloat(geoData[0].lat);
+                    const tempLng = parseFloat(geoData[0].lon);
+
+                    // Only accept if coordinates are in Ireland
+                    if (isInIreland(tempLat, tempLng)) {
+                        lat = tempLat;
+                        lng = tempLng;
+                        console.log(`✅ Geocoded to Ireland: ${lat}, ${lng}`);
+                    } else {
+                        console.warn(`⚠️ Geocoding returned non-Ireland coords (${tempLat}, ${tempLng}), using default Dublin`);
+                    }
                 }
             } catch (err) {
-                console.error("Geocoding failed:", err);
+                console.error("Geocoding failed (non-fatal):", err);
+                // We don't throw here, just use default lat/lng
             }
 
             // Then send to our backend
-            const response = await fetch('http://localhost:5000/api/listings', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    ...formData,
-                    images: uploadedUrls,
-                    ownerUid: user.uid,
-                    lat,
-                    lng
-                })
-            });
+            try {
+                const response = await fetch('http://localhost:5000/api/listings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        ...formData,
+                        images: uploadedUrls,
+                        ownerUid: user.uid,
+                        lat,
+                        lng
+                    })
+                });
 
-            if (response.ok) {
-                alert('Listing submitted! It will be live once an administrator approves it.');
-                navigate('/broker/dashboard');
-            } else {
-                const errorData = await response.json();
-                alert(`Failed to publish: ${errorData.message || 'Unknown error'}`);
+                if (response.ok) {
+                    alert('Listing submitted! It will be live once an administrator approves it.');
+                    navigate('/broker/dashboard');
+                } else {
+                    const errorData = await response.json();
+                    throw new Error(`Backend Error: ${errorData.message || response.statusText}`);
+                }
+            } catch (err) {
+                // Check if it is a network error (fetch failed)
+                if (err.message === 'Failed to fetch') {
+                    throw new Error('Backend Connection Failed. Is the server running on port 5000?');
+                }
+                throw err;
             }
+
         } catch (error) {
             console.error("Upload Error:", error);
-            alert('Error during upload. Please check your internet connection.');
+            alert(`Error during upload: ${error.message || error}`);
         } finally {
             setLoading(false);
         }
