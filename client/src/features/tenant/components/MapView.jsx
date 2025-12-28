@@ -79,10 +79,24 @@ const MapView = ({ listings, center }) => {
 
     const handleLocateMe = () => {
         if (!mapInstance) return;
-        navigator.geolocation.getCurrentPosition((pos) => {
-            const { latitude, longitude } = pos.coords;
-            mapInstance.flyTo([latitude, longitude], 15);
-        });
+
+        const options = {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0
+        };
+
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                const { latitude, longitude } = pos.coords;
+                mapInstance.flyTo([latitude, longitude], 15);
+            },
+            (err) => {
+                console.error("Geolocation error:", err);
+                alert("Could not get your location. Please ensure GPS is on.");
+            },
+            options
+        );
     };
 
     return (

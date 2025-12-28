@@ -26,6 +26,36 @@ const NewListing = () => {
         }
     };
 
+    const takePhoto = () => {
+        if (navigator.camera) {
+            navigator.camera.getPicture(
+                (imageData) => {
+                    // Convert base64 to file blob
+                    fetch(`data:image/jpeg;base64,${imageData}`)
+                        .then(res => res.blob())
+                        .then(blob => {
+                            const file = new File([blob], `camera_${Date.now()}.jpg`, { type: 'image/jpeg' });
+                            setImages(prev => [...prev, file]);
+                        });
+                },
+                (error) => {
+                    console.error("Camera error:", error);
+                },
+                {
+                    quality: 50,
+                    destinationType: navigator.camera.DestinationType.DATA_URL,
+                    sourceType: navigator.camera.PictureSourceType.CAMERA,
+                    encodingType: navigator.camera.EncodingType.JPEG,
+                    mediaType: navigator.camera.MediaType.PICTURE,
+                    allowEdit: true,
+                    correctOrientation: true
+                }
+            );
+        } else {
+            alert("Camera not available on this device/browser.");
+        }
+    };
+
     const removeImage = (index) => {
         setImages(images.filter((_, i) => i !== index));
     };
@@ -177,6 +207,33 @@ const NewListing = () => {
                         Select photos
                     </label>
                 </div>
+
+                <button
+                    type="button"
+                    onClick={takePhoto}
+                    style={{
+                        width: '100%',
+                        padding: '14px',
+                        borderRadius: '16px',
+                        background: 'white',
+                        border: '2px solid var(--color-brand)',
+                        color: 'var(--color-brand)',
+                        fontWeight: '800',
+                        fontSize: '15px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '10px',
+                        marginBottom: '24px',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s'
+                    }}
+                    onMouseOver={(e) => e.currentTarget.style.background = 'var(--color-brand-light)'}
+                    onMouseOut={(e) => e.currentTarget.style.background = 'white'}
+                >
+                    <span className="material-icons-round">photo_camera</span>
+                    Take a Photo
+                </button>
 
                 {images.length > 0 && (
                     <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '12px', marginBottom: '24px' }}>
