@@ -29,14 +29,41 @@ const BottomNav = () => {
         return () => unsubscribe();
     }, [currentUser]);
 
-    const tabs = [
-        { label: 'Explore', icon: 'search', path: '/tenant/dashboard' },
-        { label: 'Wishlist', icon: 'favorite_border', path: '/tenant/favorites' },
-        { label: 'Messages', icon: 'chat_bubble_outline', path: '/messages', badge: totalUnread },
-        { label: 'Profile', icon: 'person_outline', path: '/profile' }
-    ];
+    const getTabs = () => {
+        if (location.pathname.startsWith('/broker')) {
+            return [
+                { label: 'Listings', icon: 'dashboard', path: '/broker/dashboard' },
+                { label: 'Add New', icon: 'add_business', path: '/broker/new-listing' },
+                { label: 'Messages', icon: 'forum', path: '/broker/messages', badge: totalUnread },
+                { label: 'Profile', icon: 'person', path: '/broker/profile' }
+            ];
+        } else if (location.pathname.startsWith('/admin')) {
+            return [
+                { label: 'Console', icon: 'grid_view', path: '/admin' },
+                { label: 'Review', icon: 'list_alt', path: '/admin/listings' },
+                { label: 'App', icon: 'home', path: '/tenant/dashboard' },
+                { label: 'Sign Out', icon: 'logout', path: '/login', action: () => auth.signOut() }
+            ];
+        } else {
+            return [
+                { label: 'Explore', icon: 'search', path: '/tenant/dashboard' },
+                { label: 'Wishlist', icon: 'favorite_border', path: '/tenant/favorites' },
+                { label: 'Messages', icon: 'chat_bubble_outline', path: '/messages', badge: totalUnread },
+                { label: 'Profile', icon: 'person_outline', path: '/profile' }
+            ];
+        }
+    };
+
+    const tabs = getTabs();
 
     const isActive = (path) => location.pathname === path;
+
+    const handleTabClick = (tab) => {
+        if (tab.action) {
+            tab.action();
+        }
+        navigate(tab.path);
+    };
 
     return (
         <div style={{
@@ -56,7 +83,7 @@ const BottomNav = () => {
             {tabs.map((tab) => (
                 <div
                     key={tab.label}
-                    onClick={() => navigate(tab.path)}
+                    onClick={() => handleTabClick(tab)}
                     style={{
                         display: 'flex',
                         flexDirection: 'column',
@@ -64,7 +91,8 @@ const BottomNav = () => {
                         gap: '4px',
                         cursor: 'pointer',
                         color: isActive(tab.path) ? 'var(--color-brand)' : '#94a3b8',
-                        transition: 'all 0.2s'
+                        transition: 'all 0.2s',
+                        padding: '8px 12px'
                     }}
                 >
                     <span className="material-icons-round" style={{

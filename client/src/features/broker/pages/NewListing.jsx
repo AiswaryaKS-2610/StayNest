@@ -334,7 +334,7 @@ const NewListing = () => {
                     <label style={labelStyle}>Headline</label>
                     <input
                         type="text"
-                        placeholder="e.g. Sunny Studio in D1"
+                        placeholder="eg 23 auburn street"
                         className="input-field"
                         style={inputStyle}
                         required
@@ -348,7 +348,7 @@ const NewListing = () => {
                     <input
                         type="text"
                         inputMode="numeric"
-                        placeholder="1800"
+                        placeholder="eg 1800"
                         className="input-field"
                         style={inputStyle}
                         required

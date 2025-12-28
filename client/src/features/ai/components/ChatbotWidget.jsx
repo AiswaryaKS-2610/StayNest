@@ -141,7 +141,7 @@ const ChatbotWidget = () => {
                             type="text"
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
-                            placeholder="Dublin sightseeing or neighborhoods..."
+                            placeholder="Aiswarya adn Sneha is here to help you with your queries regarding Dublin sightseeing or neighborhoods..."
                             style={{
                                 flex: 1, padding: '12px 18px', borderRadius: '25px',
                                 border: '1px solid #E2E8F0', fontSize: '14px', outline: 'none',

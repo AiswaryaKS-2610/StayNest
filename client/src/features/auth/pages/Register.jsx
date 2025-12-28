@@ -106,7 +106,7 @@ const Register = () => {
                                 </div>
                                 <input
                                     type="text"
-                                    placeholder="e.g. Aiswarya KS"
+                                    placeholder="eg Aiswarya KS"
                                     className="input-field input-glow"
                                     required
                                     value={fullName}
@@ -121,7 +121,7 @@ const Register = () => {
                                 </div>
                                 <input
                                     type="email"
-                                    placeholder="name@university.com"
+                                    placeholder="Your Email"
                                     className="input-field input-glow"
                                     required
                                     value={email}
@@ -136,7 +136,7 @@ const Register = () => {
                                 </div>
                                 <input
                                     type="password"
-                                    placeholder="••••••••"
+                                    placeholder="Enter your password"
                                     className="input-field input-glow"
                                     required
                                     value={password}

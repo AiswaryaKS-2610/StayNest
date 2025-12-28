@@ -46,6 +46,14 @@ const AdminListingReview = () => {
 
     return (
         <div>
+            <style>{`
+                @media (max-width: 600px) {
+                    .review-card { flex-direction: column !important; align-items: flex-start !important; padding: 16px !important; }
+                    .review-card img { width: 100% !important; height: 200px !important; }
+                    .review-actions { width: 100% !important; justify-content: space-between !important; margin-top: 12px !important; }
+                }
+            `}</style>
+
             <h1 style={{ fontSize: '28px', fontWeight: '900', marginBottom: '32px' }}>Review Pending Listings</h1>
 
             {listings.length === 0 ? (
@@ -56,7 +64,7 @@ const AdminListingReview = () => {
             ) : (
                 <div style={{ display: 'grid', gap: '20px' }}>
                     {listings.map(listing => (
-                        <div key={listing.id} style={{
+                        <div key={listing.id} className="review-card" style={{
                             background: 'white',
                             padding: '24px',
                             borderRadius: '24px',
@@ -65,7 +73,7 @@ const AdminListingReview = () => {
                             gap: '24px',
                             alignItems: 'center'
                         }}>
-                            <img src={listing.image || listing.images?.[0]} style={{ width: '120px', height: '120px', borderRadius: '16px', objectFit: 'cover' }} />
+                            <img src={listing.image || listing.images?.[0]} style={{ width: '120px', height: '120px', borderRadius: '16px', objectFit: 'cover' }} alt={listing.title} />
                             <div style={{ flex: 1 }}>
                                 <h4 style={{ margin: '0 0 4px', fontSize: '18px', fontWeight: '800' }}>{listing.title}</h4>
                                 <p style={{ margin: '0 0 8px', color: '#64748B', fontSize: '14px' }}>{listing.location} | €{listing.price}/mo</p>
@@ -74,7 +82,7 @@ const AdminListingReview = () => {
                                     <span style={tagStyle}>{listing.subType}</span>
                                 </div>
                             </div>
-                            <div style={{ display: 'flex', gap: '12px' }}>
+                            <div className="review-actions" style={{ display: 'flex', gap: '12px' }}>
                                 <button
                                     onClick={() => handleAction(listing.id, 'approve')}
                                     style={{ ...actionBtnStyle, background: '#10B98115', color: '#10B981' }}

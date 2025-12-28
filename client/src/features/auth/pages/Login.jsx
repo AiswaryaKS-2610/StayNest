@@ -106,7 +106,7 @@ const Login = () => {
                         </div>
                         <input
                             type="email"
-                            placeholder="name@example.com"
+                            placeholder="Your Email"
                             className="input-field input-glow"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
@@ -121,7 +121,7 @@ const Login = () => {
                         </div>
                         <input
                             type="password"
-                            placeholder="••••••••"
+                            placeholder="Enter your password"
                             className="input-field input-glow"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
