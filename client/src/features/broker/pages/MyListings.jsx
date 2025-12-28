@@ -38,7 +38,6 @@ const MyListings = () => {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
                 <div>
                     <h1 style={{ margin: 0, fontSize: '28px', color: 'var(--color-brand)', fontWeight: '800', letterSpacing: '-0.5px' }}>My Listings</h1>
-                    <p style={{ margin: '4px 0 0', color: '#64748B', fontSize: '15px' }}>You have {listings.length} properties listed</p>
                 </div>
                 <button
                     className="btn-primary"
@@ -49,6 +48,30 @@ const MyListings = () => {
                     Create New
                 </button>
             </div>
+
+            {/* Premium Stats Row */}
+            {!loading && listings.length > 0 && (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '40px' }}>
+                    <StatCard
+                        title="Total Properties"
+                        value={listings.length}
+                        icon="apartment"
+                        color="var(--color-brand)"
+                    />
+                    <StatCard
+                        title="Active Listings"
+                        value={listings.length}
+                        icon="check_circle"
+                        color="var(--color-success)"
+                    />
+                    <StatCard
+                        title="Total Views"
+                        value={listings.reduce((acc, curr) => acc + (curr.views || 0), 0)}
+                        icon="visibility"
+                        color="#F59E0B"
+                    />
+                </div>
+            )}
 
             {loading ? (
                 <div style={{ textAlign: 'center', padding: '100px' }}>
@@ -89,5 +112,35 @@ const MyListings = () => {
         </>
     );
 };
+
+const StatCard = ({ title, value, icon, color }) => (
+    <div style={{
+        background: 'white',
+        padding: '24px',
+        borderRadius: '20px',
+        border: '1px solid #E2E8F0',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '16px',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.02)'
+    }}>
+        <div style={{
+            width: '48px',
+            height: '48px',
+            borderRadius: '12px',
+            background: `${color}15`, // 10% opacity
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: color
+        }}>
+            <span className="material-icons-round" style={{ fontSize: '24px' }}>{icon}</span>
+        </div>
+        <div>
+            <div style={{ fontSize: '24px', fontWeight: '800', color: 'var(--color-text-pri)' }}>{value}</div>
+            <div style={{ fontSize: '13px', fontWeight: '600', color: 'var(--color-text-sec)' }}>{title}</div>
+        </div>
+    </div>
+);
 
 export default MyListings;

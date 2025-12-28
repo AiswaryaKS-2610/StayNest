@@ -190,38 +190,36 @@ const PropertyDetails = () => {
                 </div>
             </div>
 
-            {/* Premium Hero Gallery */}
-            <div style={{ position: 'relative', height: '400px', background: '#f5f5f5', overflow: 'hidden' }}>
-                <img
-                    src={images[currentImageIndex]}
-                    alt={property.title}
-                    className="animate-fade"
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                />
-
-                {/* Image Overlay Controls */}
-                <div style={{ position: 'absolute', bottom: '24px', right: '24px', display: 'flex', gap: '8px' }}>
-                    <div className="glass-panel" style={{ color: 'white', padding: '8px 16px', borderRadius: '30px', fontSize: '13px', fontWeight: '700', background: 'rgba(0,0,0,0.5)', border: 'none' }}>
-                        {currentImageIndex + 1} / {images.length}
-                    </div>
+            {/* Premium Masonry Gallery */}
+            <div style={{ maxWidth: '1120px', margin: '24px auto', padding: '0 24px', height: '400px', display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gridTemplateRows: '1fr 1fr', gap: '8px', borderRadius: '24px', overflow: 'hidden' }}>
+                {/* Main Large Image */}
+                <div style={{ gridArea: '1 / 1 / 3 / 2', position: 'relative', cursor: 'pointer' }} onClick={() => setCurrentImageIndex(0)}>
+                    <img
+                        src={images[0]}
+                        alt={property.title}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        className="hover-scale"
+                    />
                 </div>
 
-                {images.length > 1 && (
-                    <>
-                        <button
-                            onClick={() => setCurrentImageIndex(prev => (prev > 0 ? prev - 1 : images.length - 1))}
-                            style={{ ...navButtonStyle, left: '24px', width: '40px', height: '40px', background: 'rgba(255,255,255,0.9)' }}
-                        >
-                            <span className="material-icons-round">chevron_left</span>
-                        </button>
-                        <button
-                            onClick={() => setCurrentImageIndex(prev => (prev < images.length - 1 ? prev + 1 : 0))}
-                            style={{ ...navButtonStyle, right: '24px', width: '40px', height: '40px', background: 'rgba(255,255,255,0.9)' }}
-                        >
-                            <span className="material-icons-round">chevron_right</span>
-                        </button>
-                    </>
-                )}
+                {/* Secondary Images */}
+                <div style={{ gridArea: '1 / 2 / 2 / 3', cursor: 'pointer' }} onClick={() => setCurrentImageIndex(1)}>
+                    <img src={images[1] || images[0]} alt="View 2" style={{ width: '100%', height: '100%', objectFit: 'cover' }} className="hover-scale" />
+                </div>
+                <div style={{ gridArea: '1 / 3 / 2 / 4', cursor: 'pointer' }} onClick={() => setCurrentImageIndex(2)}>
+                    <img src={images[2] || images[0]} alt="View 3" style={{ width: '100%', height: '100%', objectFit: 'cover' }} className="hover-scale" />
+                </div>
+                <div style={{ gridArea: '2 / 2 / 3 / 3', cursor: 'pointer' }} onClick={() => setCurrentImageIndex(3)}>
+                    <img src={images[3] || images[0]} alt="View 4" style={{ width: '100%', height: '100%', objectFit: 'cover' }} className="hover-scale" />
+                </div>
+                <div style={{ gridArea: '2 / 3 / 3 / 4', position: 'relative', cursor: 'pointer' }} onClick={() => setCurrentImageIndex(4)}>
+                    <img src={images[4] || images[0]} alt="View 5" style={{ width: '100%', height: '100%', objectFit: 'cover' }} className="hover-scale" />
+                    {images.length > 5 && (
+                        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: '800', fontSize: '18px' }}>
+                            +{images.length - 5} photos
+                        </div>
+                    )}
+                </div>
             </div>
 
             <div style={{ padding: '32px 24px', maxWidth: '800px', margin: '0 auto' }}>

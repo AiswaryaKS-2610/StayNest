@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { auth, db } from '../../../firebase.config';
 import { doc, updateDoc, arrayUnion, arrayRemove, onSnapshot } from 'firebase/firestore';
 
-const ListingCard = ({ listing, isBrokerView = false }) => {
+const ListingCard = ({ listing, commuteTarget, isBrokerView = false }) => {
     const [isFavorite, setIsFavorite] = useState(false);
     const navigate = useNavigate();
     const currentUser = auth.currentUser;
@@ -46,6 +46,25 @@ const ListingCard = ({ listing, isBrokerView = false }) => {
         }
     };
 
+    // Helper: Haversine Distance
+    const getDistance = (lat1, lon1, lat2, lon2) => {
+        const R = 6371; // km
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c;
+    };
+
+    const commuteInfo = React.useMemo(() => {
+        if (!commuteTarget || !listing.lat || !listing.lng) return null;
+        const dist = getDistance(listing.lat, listing.lng, commuteTarget.lat, commuteTarget.lng);
+        const walkTime = Math.ceil((dist * 1000) / 80); // 80m/min
+        return { dist, walkTime };
+    }, [commuteTarget, listing]);
+
     return (
         <div className="premium-card" style={{ marginBottom: '24px', position: 'relative' }}>
             {/* Image Container */}
@@ -58,9 +77,8 @@ const ListingCard = ({ listing, isBrokerView = false }) => {
                 <img
                     src={(listing.images && listing.images.length > 0) ? listing.images[0] : (listing.image || 'https://via.placeholder.com/400x300?text=No+Image')}
                     alt={listing.title}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s ease' }}
-                    onMouseEnter={(e) => e.target.style.transform = 'scale(1.05)'}
-                    onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
+                    className="hover-scale"
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
 
                 {/* Gradient Overlay */}
@@ -70,6 +88,24 @@ const ListingCard = ({ listing, isBrokerView = false }) => {
                     background: 'linear-gradient(to top, rgba(0,0,0,0.4), transparent)',
                     pointerEvents: 'none'
                 }} />
+
+                {/* Commute Badge (if selected) */}
+                {commuteInfo && (
+                    <div style={{
+                        position: 'absolute', bottom: '16px', right: '16px',
+                        background: 'white', color: 'var(--color-brand)',
+                        padding: '8px 16px', borderRadius: '30px',
+                        fontSize: '13px', fontWeight: '800',
+                        display: 'flex', alignItems: 'center', gap: '6px',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
+                    }}>
+                        <span className="material-icons-round" style={{ fontSize: '18px' }}>directions_walk</span>
+                        {commuteInfo.walkTime > 60
+                            ? `${commuteInfo.dist.toFixed(1)} km to campus`
+                            : `${commuteInfo.walkTime} min to Campus`
+                        }
+                    </div>
+                )}
 
                 {/* Badges */}
                 <div style={{ position: 'absolute', top: '16px', left: '16px', display: 'flex', gap: '8px' }}>
@@ -178,24 +214,7 @@ const ListingCard = ({ listing, isBrokerView = false }) => {
                             Edit Details
                         </button>
                     ) : (
-                        (listing.distanceToCollege !== undefined && listing.distanceToCollege !== null) ? (
-                            <div style={{
-                                background: 'var(--color-brand-light)',
-                                color: 'var(--color-brand)',
-                                padding: '6px 14px',
-                                borderRadius: '12px',
-                                fontSize: '12px',
-                                fontWeight: '700',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '6px'
-                            }}>
-                                <span className="material-icons-round" style={{ fontSize: '16px' }}>near_me</span>
-                                {listing.distanceToCollege < 1
-                                    ? `${Math.round(listing.distanceToCollege * 1000)}m`
-                                    : `${listing.distanceToCollege.toFixed(1)}km`}
-                            </div>
-                        ) : (listing.distanceToSearch !== undefined && listing.distanceToSearch !== null && (
+                        (listing.distanceToSearch !== undefined && listing.distanceToSearch !== null && !commuteInfo) && (
                             <div style={{
                                 background: 'var(--color-brand)',
                                 color: 'white',
@@ -213,7 +232,7 @@ const ListingCard = ({ listing, isBrokerView = false }) => {
                                     ? `${Math.round(listing.distanceToSearch * 1000)}m`
                                     : `${listing.distanceToSearch.toFixed(1)}km`}
                             </div>
-                        ))
+                        )
                     )}
                 </div>
             </div>

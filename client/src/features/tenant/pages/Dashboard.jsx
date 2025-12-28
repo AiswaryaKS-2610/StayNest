@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import SearchFilters from '../components/SearchFilters';
+import { auth } from '../../../firebase.config';
 import ListingCard from '../components/ListingCard';
 import MapView from '../components/MapView';
 import BottomNav from '../../common/components/BottomNav';
 import { useNavigate } from 'react-router-dom';
 import { fetchListings } from '../../../services/api';
+import RoommateCard from '../components/RoommateCard';
+import { getRoommates } from '../../../services/roommateService';
+import AddRoommateModal from '../components/AddRoommateModal';
 
 const Dashboard = () => {
     const navigate = useNavigate();
+    const [activeTab, setActiveTab] = useState('properties'); // 'properties' | 'roommates'
     const [listings, setListings] = useState([]);
     const [filteredListings, setFilteredListings] = useState([]);
     const [viewMode, setViewMode] = useState('list');
@@ -21,6 +26,13 @@ const Dashboard = () => {
     const [sortBy, setSortBy] = useState('recommended');
     const [quickFilters, setQuickFilters] = useState([]);
     const [searchCoords, setSearchCoords] = useState(null);
+
+    // Roommate State
+    const [dbRoommates, setDbRoommates] = useState([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    // Filter out current user
+    const visibleRoommates = dbRoommates.filter(p => p.userId !== auth.currentUser?.uid);
 
     // ... (CAMPUS_LOCATIONS and getDistance remain same)
     const CAMPUS_LOCATIONS = {
@@ -48,6 +60,15 @@ const Dashboard = () => {
         return R * c;
     };
 
+    const refreshRoommates = async () => {
+        try {
+            const data = await getRoommates();
+            setDbRoommates(data);
+        } catch (error) {
+            console.error("Failed to load roommates", error);
+        }
+    };
+
     useEffect(() => {
         const loadData = async () => {
             const data = await fetchListings();
@@ -60,6 +81,7 @@ const Dashboard = () => {
             setFilteredListings(safeData);
         };
         loadData();
+        refreshRoommates();
     }, []);
 
     // Geocode search place when it changes
@@ -236,144 +258,268 @@ const Dashboard = () => {
                         </span>
                     </button>
                 </div>
-                <SearchFilters
-                    initialFilters={activeFilters}
-                    onFilterChange={(newFilters) => setActiveFilters(prev => ({ ...prev, ...newFilters }))}
-                />
 
-                {/* Quick Filters & Sorting */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px', gap: '12px' }}>
-                    <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px', flex: 1, scrollbarWidth: 'none' }}>
-                        {['Wifi', 'Ensuite', 'Studio', 'Gym', 'Parking'].map(tag => {
-                            const active = quickFilters.includes(tag);
-                            return (
-                                <button
-                                    key={tag}
-                                    onClick={() => setQuickFilters(prev => active ? prev.filter(t => t !== tag) : [...prev, tag])}
-                                    style={{
-                                        padding: '6px 14px',
-                                        borderRadius: '20px',
-                                        border: `1px solid ${active ? 'var(--color-brand)' : '#E2E8F0'}`,
-                                        background: active ? '#EFF6FF' : 'white',
-                                        color: active ? 'var(--color-brand)' : '#64748B',
-                                        fontSize: '12px',
-                                        fontWeight: '700',
-                                        whiteSpace: 'nowrap',
-                                        cursor: 'pointer',
-                                        transition: 'all 0.2s'
-                                    }}
-                                >
-                                    {tag}
-                                </button>
-                            );
-                        })}
-                    </div>
-
-                    <div style={{ position: 'relative' }}>
-                        <select
-                            value={sortBy}
-                            onChange={(e) => setSortBy(e.target.value)}
-                            style={{
-                                appearance: 'none',
-                                background: 'white',
-                                border: '1px solid #E2E8F0',
-                                padding: '8px 32px 8px 12px',
-                                borderRadius: '12px',
-                                fontSize: '12px',
-                                fontWeight: '700',
-                                color: 'var(--color-text-pri)',
-                                cursor: 'pointer',
-                                outline: 'none'
-                            }}
-                        >
-                            <option value="recommended">Recommended</option>
-                            <option value="newest">Newest</option>
-                            <option value="price_low">Price: Low to High</option>
-                            <option value="price_high">Price: High to Low</option>
-                        </select>
-                        <span className="material-icons-round" style={{
-                            position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)',
-                            fontSize: '16px', color: '#64748B', pointerEvents: 'none'
-                        }}>sort</span>
-                    </div>
-                </div>
-            </div>
-
-            {/* Premium Category Tabs */}
-            <div style={{
-                display: 'flex',
-                justifyContent: 'space-around',
-                marginBottom: '28px',
-                paddingBottom: '8px',
-                borderBottom: '1px solid #F1F5F9'
-            }}>
-                {['All', 'Sharing', 'Entire Home'].map((cat) => (
-                    <div
-                        key={cat}
-                        onClick={() => setActiveCategory(cat)}
+                {/* Main Toggle */}
+                <div style={{
+                    background: '#F1F5F9',
+                    padding: '4px',
+                    borderRadius: '16px',
+                    display: 'flex',
+                    marginBottom: '24px'
+                }}>
+                    <button
+                        onClick={() => setActiveTab('properties')}
                         style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            gap: '8px',
+                            flex: 1,
+                            padding: '10px',
+                            borderRadius: '14px',
+                            border: 'none',
+                            background: activeTab === 'properties' ? 'white' : 'transparent',
+                            color: activeTab === 'properties' ? 'var(--color-brand)' : '#64748B',
+                            fontWeight: '700',
+                            fontSize: '14px',
+                            boxShadow: activeTab === 'properties' ? '0 2px 8px rgba(0,0,0,0.05)' : 'none',
                             cursor: 'pointer',
-                            opacity: activeCategory === cat ? 1 : 0.5,
-                            transition: 'var(--transition-smooth)',
-                            position: 'relative',
-                            paddingBottom: '8px'
+                            transition: 'all 0.2s'
                         }}
                     >
-                        <span className="material-icons-round" style={{
-                            fontSize: '24px',
-                            color: activeCategory === cat ? 'var(--color-brand)' : 'var(--color-text-sec)'
-                        }}>
-                            {cat === 'All' ? 'grid_view' : cat === 'Sharing' ? 'groups' : 'home'}
-                        </span>
-                        <span style={{ fontSize: '11px', fontWeight: '800', letterSpacing: '0.5px' }}>{cat.toUpperCase()}</span>
-                        {activeCategory === cat && (
-                            <div style={{
-                                position: 'absolute',
-                                bottom: -1,
-                                width: '100%',
-                                height: '2px',
-                                background: 'var(--color-brand)',
-                                borderRadius: '2px'
-                            }} />
-                        )}
-                    </div>
-                ))}
+                        Find a Home
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('roommates')}
+                        style={{
+                            flex: 1,
+                            padding: '10px',
+                            borderRadius: '14px',
+                            border: 'none',
+                            background: activeTab === 'roommates' ? 'white' : 'transparent',
+                            color: activeTab === 'roommates' ? 'var(--color-brand)' : '#64748B',
+                            fontWeight: '700',
+                            fontSize: '14px',
+                            boxShadow: activeTab === 'roommates' ? '0 2px 8px rgba(0,0,0,0.05)' : 'none',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '6px',
+                            transition: 'all 0.2s'
+                        }}
+                    >
+                        Buddy Up
+                    </button>
+                </div>
+
+                {/* Properties View */}
+                {activeTab === 'properties' && (
+                    <>
+                        <SearchFilters
+                            initialFilters={activeFilters}
+                            onFilterChange={(newFilters) => setActiveFilters(prev => ({ ...prev, ...newFilters }))}
+                        />
+
+                        {/* Quick Filters & Sorting */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px', gap: '12px' }}>
+                            <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px', flex: 1, scrollbarWidth: 'none' }}>
+                                {['Wifi', 'Ensuite', 'Studio', 'Gym', 'Parking'].map(tag => {
+                                    const active = quickFilters.includes(tag);
+                                    return (
+                                        <button
+                                            key={tag}
+                                            onClick={() => setQuickFilters(prev => active ? prev.filter(t => t !== tag) : [...prev, tag])}
+                                            style={{
+                                                padding: '6px 14px',
+                                                borderRadius: '20px',
+                                                border: `1px solid ${active ? 'var(--color-brand)' : '#E2E8F0'}`,
+                                                background: active ? '#EFF6FF' : 'white',
+                                                color: active ? 'var(--color-brand)' : '#64748B',
+                                                fontSize: '12px',
+                                                fontWeight: '700',
+                                                whiteSpace: 'nowrap',
+                                                cursor: 'pointer',
+                                                transition: 'all 0.2s'
+                                            }}
+                                        >
+                                            {tag}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+
+                            <div style={{ position: 'relative' }}>
+                                <select
+                                    value={sortBy}
+                                    onChange={(e) => setSortBy(e.target.value)}
+                                    style={{
+                                        appearance: 'none',
+                                        background: 'white',
+                                        border: '1px solid #E2E8F0',
+                                        padding: '8px 32px 8px 12px',
+                                        borderRadius: '12px',
+                                        fontSize: '12px',
+                                        fontWeight: '700',
+                                        color: 'var(--color-text-pri)',
+                                        cursor: 'pointer',
+                                        outline: 'none'
+                                    }}
+                                >
+                                    <option value="recommended">Recommended</option>
+                                    <option value="newest">Newest</option>
+                                    <option value="price_low">Price: Low to High</option>
+                                    <option value="price_high">Price: High to Low</option>
+                                </select>
+                                <span className="material-icons-round" style={{
+                                    position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)',
+                                    fontSize: '16px', color: '#64748B', pointerEvents: 'none'
+                                }}>sort</span>
+                            </div>
+                        </div>
+                    </>
+                )}
             </div>
 
-            {viewMode === 'list' ? (
-                <div style={{ marginTop: '8px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '20px' }}>
-                        <h3 style={{ fontSize: '20px', margin: 0, fontWeight: '800', color: 'var(--color-text-pri)' }}>
-                            {filteredListings.length > 0 ? 'Available Properties' : 'No properties found'}
-                        </h3>
-                        {filteredListings.length > 0 && (
-                            <span style={{ fontSize: '13px', color: 'var(--color-text-sec)', fontWeight: '600' }}>
-                                {filteredListings.length} results
-                            </span>
-                        )}
+            {/* Content Area */}
+            {activeTab === 'properties' ? (
+                <>
+                    {/* Premium Category Tabs */}
+                    <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-around',
+                        marginBottom: '28px',
+                        paddingBottom: '8px',
+                        borderBottom: '1px solid #F1F5F9'
+                    }}>
+                        {['All', 'Sharing', 'Entire Home'].map((cat) => (
+                            <div
+                                key={cat}
+                                onClick={() => setActiveCategory(cat)}
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    gap: '8px',
+                                    cursor: 'pointer',
+                                    opacity: activeCategory === cat ? 1 : 0.5,
+                                    transition: 'var(--transition-smooth)',
+                                    position: 'relative',
+                                    paddingBottom: '8px'
+                                }}
+                            >
+                                <span className="material-icons-round" style={{
+                                    fontSize: '24px',
+                                    color: activeCategory === cat ? 'var(--color-brand)' : 'var(--color-text-sec)'
+                                }}>
+                                    {cat === 'All' ? 'grid_view' : cat === 'Sharing' ? 'groups' : 'home'}
+                                </span>
+                                <span style={{ fontSize: '11px', fontWeight: '800', letterSpacing: '0.5px' }}>{cat.toUpperCase()}</span>
+                                {activeCategory === cat && (
+                                    <div style={{
+                                        position: 'absolute',
+                                        bottom: -1,
+                                        width: '100%',
+                                        height: '2px',
+                                        background: 'var(--color-brand)',
+                                        borderRadius: '2px'
+                                    }} />
+                                )}
+                            </div>
+                        ))}
                     </div>
-                    {filteredListings.map((item, index) => (
-                        <div
-                            key={item.id}
-                            className="animate-in"
-                            style={{ animationDelay: `${index * 0.1}s`, cursor: 'pointer' }}
-                            onClick={() => navigate(`/property/${item.id}`)}
-                        >
-                            <ListingCard listing={item} />
+
+                    {viewMode === 'list' ? (
+                        <div style={{ marginTop: '8px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '20px' }}>
+                                <h3 style={{ fontSize: '20px', margin: 0, fontWeight: '800', color: 'var(--color-text-pri)' }}>
+                                    {filteredListings.length > 0 ? 'Available Properties' : 'No properties found'}
+                                </h3>
+                                {filteredListings.length > 0 && (
+                                    <span style={{ fontSize: '13px', color: 'var(--color-text-sec)', fontWeight: '600' }}>
+                                        {filteredListings.length} results
+                                    </span>
+                                )}
+                            </div>
+                            {filteredListings.map((item, index) => (
+                                <div
+                                    key={item.id}
+                                    className="animate-in"
+                                    style={{ animationDelay: `${index * 0.1}s`, cursor: 'pointer' }}
+                                    onClick={() => navigate(`/property/${item.id}`)}
+                                >
+                                    <ListingCard
+                                        listing={item}
+                                        commuteTarget={activeFilters.selectedCollege ? { name: activeFilters.selectedCollege, ...CAMPUS_LOCATIONS[activeFilters.selectedCollege] } : null}
+                                    />
+                                </div>
+                            ))}
                         </div>
-                    ))}
-                </div>
+                    ) : (
+                        <MapView
+                            listings={filteredListings}
+                            center={searchCoords || (activeFilters.selectedCollege ? CAMPUS_LOCATIONS[activeFilters.selectedCollege] : null)}
+                            selectedCollege={activeFilters.selectedCollege}
+                        />
+                    )}
+                </>
             ) : (
-                <MapView
-                    listings={filteredListings}
-                    center={searchCoords || (activeFilters.selectedCollege ? CAMPUS_LOCATIONS[activeFilters.selectedCollege] : null)}
-                    selectedCollege={activeFilters.selectedCollege}
-                />
+                // Roommates View
+                <div className="animate-in">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                        <h3 style={{ fontSize: '20px', margin: 0, fontWeight: '800', color: 'var(--color-text-pri)' }}>
+                            Suggested Roommates
+                        </h3>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            {visibleRoommates.length > 0 && (
+                                <span style={{ fontSize: '13px', color: 'var(--color-text-sec)', fontWeight: '600' }}>
+                                    {visibleRoommates.length} found
+                                </span>
+                            )}
+                            <button
+                                onClick={() => setIsModalOpen(true)}
+                                style={{
+                                    background: 'var(--color-brand)',
+                                    color: 'white',
+                                    border: 'none',
+                                    width: '32px',
+                                    height: '32px',
+                                    borderRadius: '50%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    cursor: 'pointer',
+                                    boxShadow: '0 2px 4px rgba(30, 58, 138, 0.2)'
+                                }}
+                            >
+                                <span className="material-icons-round" style={{ fontSize: '18px' }}>add</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    {visibleRoommates.length === 0 ? (
+                        <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--color-text-hint)' }}>
+                            <span className="material-icons-round" style={{ fontSize: '48px', marginBottom: '16px', opacity: 0.5 }}>groups</span>
+                            <p>No other profiles yet. Be the first to join!</p>
+                            <button
+                                onClick={() => setIsModalOpen(true)}
+                                className="btn-primary"
+                                style={{ marginTop: '16px', padding: '8px 16px', borderRadius: '20px', fontSize: '13px' }}
+                            >
+                                Create Profile
+                            </button>
+                        </div>
+                    ) : (
+                        visibleRoommates.map((profile, index) => (
+                            <div key={profile.id} className="animate-in" style={{ animationDelay: `${index * 0.1}s` }}>
+                                <RoommateCard profile={profile} />
+                            </div>
+                        ))
+                    )}
+                </div>
             )}
+
+            <AddRoommateModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onProfileAdded={refreshRoommates}
+            />
 
             <BottomNav />
         </div>

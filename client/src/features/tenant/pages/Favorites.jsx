@@ -86,10 +86,14 @@ const Favorites = () => {
                     textAlign: 'center',
                     background: 'white',
                     borderRadius: '24px',
-                    boxShadow: 'var(--shadow-premium)'
+                    border: '1px dashed #CBD5E1'
                 }}>
-                    <div style={{ marginBottom: '20px' }}>
-                        <span className="material-icons-round" style={{ fontSize: '64px', color: '#CBD5E1' }}>explore</span>
+                    <div style={{
+                        width: '80px', height: '80px', background: 'var(--color-brand-light)',
+                        borderRadius: '50%', display: 'flex', alignItems: 'center',
+                        justifyContent: 'center', margin: '0 auto 24px', color: 'var(--color-brand)'
+                    }}>
+                        <span className="material-icons-round" style={{ fontSize: '40px' }}>favorite_border</span>
                     </div>
                     <h2 style={{ fontSize: '20px', fontWeight: '800', marginBottom: '8px' }}>No saved homes yet</h2>
                     <p style={{ color: 'var(--color-text-sec)', marginBottom: '32px', fontSize: '14px' }}>

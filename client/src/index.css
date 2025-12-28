@@ -255,3 +255,32 @@ h4 {
   z-index: -1;
   animation: aura-pulse 8s infinite ease-in-out;
 }
+
+/* Enhancements */
+.hover-scale {
+  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  display: block;
+}
+
+.hover-scale:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+  position: relative;
+}
+
+.animate-fade {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
