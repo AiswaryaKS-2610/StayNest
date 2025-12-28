@@ -20,20 +20,20 @@ const PLACE_OPTIONS = [
     'Germany', 'Italy', 'Portugal', 'China', 'India', 'Brazil', 'Other'
 ];
 
-const AddRoommateModal = ({ isOpen, onClose, onProfileAdded }) => {
+const AddRoommateModal = ({ isOpen, onClose, onProfileAdded, existingProfile }) => {
     const [loading, setLoading] = useState(false);
     const [imageUploading, setImageUploading] = useState(false);
 
     const [formData, setFormData] = useState({
-        name: auth.currentUser?.displayName || '',
-        age: '',
-        location: '',
-        budget: '',
-        bio: '',
-        tags: [],
-        image: auth.currentUser?.photoURL || '',
-        languagePreference: '',
-        placePreference: ''
+        name: existingProfile?.name || auth.currentUser?.displayName || '',
+        age: existingProfile?.age || '',
+        location: existingProfile?.location || '',
+        budget: existingProfile?.budget || '',
+        bio: existingProfile?.bio || '',
+        tags: existingProfile?.tags || [],
+        image: existingProfile?.image || auth.currentUser?.photoURL || '',
+        languagePreference: existingProfile?.languagePreference || '',
+        placePreference: existingProfile?.placePreference || ''
     });
 
     if (!isOpen) return null;
@@ -111,7 +111,9 @@ const AddRoommateModal = ({ isOpen, onClose, onProfileAdded }) => {
                 overflowY: 'auto'
             }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                    <h2 style={{ margin: 0, fontSize: '20px', fontWeight: '800', color: 'var(--color-text-pri)' }}>Create Buddy Profile</h2>
+                    <h2 style={{ margin: 0, fontSize: '20px', fontWeight: '800', color: 'var(--color-text-pri)' }}>
+                        {existingProfile ? 'Edit Buddy Profile' : 'Create Buddy Profile'}
+                    </h2>
                     <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
                         <span className="material-icons-round">close</span>
                     </button>
@@ -276,7 +278,7 @@ const AddRoommateModal = ({ isOpen, onClose, onProfileAdded }) => {
                         className="btn-primary"
                         style={{ marginTop: '16px', borderRadius: '12px', padding: '14px' }}
                     >
-                        {loading ? 'Publishing...' : 'Publish Profile'}
+                        {loading ? (existingProfile ? 'Updating...' : 'Publishing...') : (existingProfile ? 'Update Profile' : 'Publish Profile')}
                     </button>
                 </form>
             </div>

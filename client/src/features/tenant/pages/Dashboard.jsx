@@ -34,6 +34,9 @@ const Dashboard = () => {
     // Filter out current user
     const visibleRoommates = dbRoommates.filter(p => p.userId !== auth.currentUser?.uid);
 
+    // Check if current user already has a profile
+    const currentUserProfile = dbRoommates.find(p => p.userId === auth.currentUser?.uid);
+
     // ... (CAMPUS_LOCATIONS and getDistance remain same)
     const CAMPUS_LOCATIONS = {
         'Trinity College': { lat: 53.3438, lng: -6.2546 },
@@ -488,22 +491,68 @@ const Dashboard = () => {
                                     boxShadow: '0 2px 4px rgba(30, 58, 138, 0.2)'
                                 }}
                             >
-                                <span className="material-icons-round" style={{ fontSize: '18px' }}>add</span>
+                                <span className="material-icons-round" style={{ fontSize: '18px' }}>
+                                    {currentUserProfile ? 'edit' : 'add'}
+                                </span>
                             </button>
                         </div>
                     </div>
+
+                    {/* My Profile Section */}
+                    {currentUserProfile && (
+                        <div style={{ marginBottom: '24px' }}>
+                            <h4 style={{ fontSize: '14px', fontWeight: '700', color: 'var(--color-text-sec)', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                My Profile
+                            </h4>
+                            <div style={{ position: 'relative' }}>
+                                <RoommateCard profile={currentUserProfile} />
+                                <button
+                                    onClick={() => setIsModalOpen(true)}
+                                    style={{
+                                        position: 'absolute',
+                                        top: '16px',
+                                        right: '16px',
+                                        background: 'var(--color-brand)',
+                                        color: 'white',
+                                        border: 'none',
+                                        padding: '8px 16px',
+                                        borderRadius: '20px',
+                                        fontSize: '13px',
+                                        fontWeight: '600',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '6px',
+                                        boxShadow: '0 2px 8px rgba(30, 58, 138, 0.3)'
+                                    }}
+                                >
+                                    <span className="material-icons-round" style={{ fontSize: '16px' }}>edit</span>
+                                    Edit
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Other Roommates Section */}
+                    {visibleRoommates.length > 0 && (
+                        <h4 style={{ fontSize: '14px', fontWeight: '700', color: 'var(--color-text-sec)', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                            Other Roommates
+                        </h4>
+                    )}
 
                     {visibleRoommates.length === 0 ? (
                         <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--color-text-hint)' }}>
                             <span className="material-icons-round" style={{ fontSize: '48px', marginBottom: '16px', opacity: 0.5 }}>groups</span>
                             <p>No other profiles yet. Be the first to join!</p>
-                            <button
-                                onClick={() => setIsModalOpen(true)}
-                                className="btn-primary"
-                                style={{ marginTop: '16px', padding: '8px 16px', borderRadius: '20px', fontSize: '13px' }}
-                            >
-                                Create Profile
-                            </button>
+                            {!currentUserProfile && (
+                                <button
+                                    onClick={() => setIsModalOpen(true)}
+                                    className="btn-primary"
+                                    style={{ marginTop: '16px', padding: '8px 16px', borderRadius: '20px', fontSize: '13px' }}
+                                >
+                                    Create Profile
+                                </button>
+                            )}
                         </div>
                     ) : (
                         visibleRoommates.map((profile, index) => (
@@ -519,6 +568,7 @@ const Dashboard = () => {
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onProfileAdded={refreshRoommates}
+                existingProfile={currentUserProfile}
             />
 
             <BottomNav />
