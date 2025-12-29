@@ -17,5 +17,8 @@
         "ANDROIDX_CORE_VERSION": "1.6.+"
       }
     }
+  },
+  "dependencies": {
+    "leaflet-geosearch": "^4.2.2"
   }
 }
