@@ -8,16 +8,16 @@ import {
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { auth, db } from "../../../firebase.config";
 
-// Auth Service using Firebase
+
 export const registerUser = async (email, password, role, fullName) => {
     try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
 
-        // Send Native Firebase Verification Email
+        
         await sendEmailVerification(user);
 
-        // Sync with Backend
+        
         await fetch('https://staynest-6vsv.onrender.com/api/users/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -41,7 +41,7 @@ export const loginUser = async (email, password) => {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
 
-        // Fetch role from Firestore
+        
         const userDoc = await getDoc(doc(db, "users", user.uid));
         const role = userDoc.exists() ? userDoc.data().role : 'tenant';
 

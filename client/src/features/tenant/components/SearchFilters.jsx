@@ -18,12 +18,12 @@ const COLLEGE_LOCATIONS = {
 const SearchFilters = ({ onFilterChange, initialFilters }) => {
     const [filters, setFilters] = useState(initialFilters || {
         maxPrice: 3000,
-        selectedCollege: null, // Changed to allow object or null
+        selectedCollege: null, 
         searchPlace: '',
         billsIncluded: false,
     });
 
-    // Sync if initialFilters change (e.g. from parent defaults)
+    
     useEffect(() => {
         if (initialFilters) setFilters(initialFilters);
     }, [initialFilters]);
@@ -37,7 +37,7 @@ const SearchFilters = ({ onFilterChange, initialFilters }) => {
     const handleChange = (key, value) => {
         let newFilters = { ...filters, [key]: value };
 
-        // Special handling for college selection to include coordinates
+        
         if (key === 'selectedCollege') {
             const collegeName = value;
             if (collegeName && COLLEGE_LOCATIONS[collegeName]) {
@@ -51,7 +51,7 @@ const SearchFilters = ({ onFilterChange, initialFilters }) => {
         }
 
         setFilters(newFilters);
-        // Instant update for non-search filters
+        
         if (key !== 'searchPlace') {
             onFilterChange(newFilters);
         }
@@ -67,11 +67,11 @@ const SearchFilters = ({ onFilterChange, initialFilters }) => {
         onFilterChange(newFilters);
     };
 
-    // Real-time filtering with debounce for parent - MUCH FASTER
+    
     useEffect(() => {
         const timer = setTimeout(() => {
             onFilterChange(filters);
-        }, 300); // 300ms for responsiveness
+        }, 300); 
         return () => clearTimeout(timer);
     }, [filters.searchPlace]);
 
@@ -82,7 +82,7 @@ const SearchFilters = ({ onFilterChange, initialFilters }) => {
 
     return (
         <div className="animate-in" style={{ animationDelay: '0.1s' }}>
-            {/* Main Search Bar */}
+            {}
             <div style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -119,7 +119,7 @@ const SearchFilters = ({ onFilterChange, initialFilters }) => {
                 </button>
             </div>
 
-            {/* Quick Filters - Wrapped to avoid scroll */}
+            {}
             <div style={{
                 display: 'flex',
                 gap: '12px',
@@ -127,7 +127,7 @@ const SearchFilters = ({ onFilterChange, initialFilters }) => {
                 flexWrap: 'wrap',
                 justifyContent: 'flex-start'
             }}>
-                {/* College Dropdown - Fixed Alignment */}
+                {}
                 <div style={{ position: 'relative', flex: '0 0 auto', minWidth: '180px' }}>
                     <select
                         value={filters.selectedCollege?.name || ''}
@@ -136,14 +136,14 @@ const SearchFilters = ({ onFilterChange, initialFilters }) => {
                             background: 'white',
                             border: '1.5px solid #E2E8F0',
                             borderRadius: '12px',
-                            padding: '10px 32px 10px 36px', // Increased left padding for icon
+                            padding: '10px 32px 10px 36px', 
                             fontSize: '13px',
                             fontWeight: '600',
                             color: filters.selectedCollege ? 'var(--color-brand)' : '#64748B',
                             cursor: 'pointer',
                             outline: 'none',
                             width: '100%',
-                            height: '42px', // Fixed height for alignment
+                            height: '42px', 
                             appearance: 'none',
                             WebkitAppearance: 'none',
                             MozAppearance: 'none',
@@ -187,7 +187,7 @@ const SearchFilters = ({ onFilterChange, initialFilters }) => {
                         border: '1px solid',
                         borderColor: filters.billsIncluded ? 'var(--color-success)' : '#F1F5F9',
                         padding: '0 16px',
-                        height: '42px', // Match height
+                        height: '42px', 
                         borderRadius: '16px',
                         display: 'flex',
                         alignItems: 'center',
@@ -214,7 +214,7 @@ const SearchFilters = ({ onFilterChange, initialFilters }) => {
                     display: 'flex',
                     alignItems: 'center',
                     gap: '12px',
-                    flex: '1 1 300px', // Allow grow
+                    flex: '1 1 300px', 
                     boxShadow: '0 2px 6px rgba(0,0,0,0.02)',
                     overflow: 'visible',
                     height: '42px'

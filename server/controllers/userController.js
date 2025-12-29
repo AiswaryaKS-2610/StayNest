@@ -10,12 +10,12 @@ const registerUser = async (req, res) => {
     try {
         const db = admin.firestore();
 
-        // Save user profile to Firestore via Admin SDK
+        
         await db.collection('users').doc(uid).set({
             email,
             role,
             fullName,
-            verified: role === 'broker' ? false : true, // Brokers need manual verification
+            verified: role === 'broker' ? false : true, 
             createdAt: admin.firestore.FieldValue.serverTimestamp()
         });
 
@@ -27,7 +27,7 @@ const registerUser = async (req, res) => {
 };
 
 const getUserProfile = async (req, res) => {
-    const uid = req.user.uid; // From authMiddleware
+    const uid = req.user.uid; 
 
     try {
         const db = admin.firestore();

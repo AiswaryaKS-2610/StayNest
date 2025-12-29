@@ -4,7 +4,7 @@ import { registerUser } from '../services/authService';
 
 const Register = () => {
     const navigate = useNavigate();
-    const [step, setStep] = useState(1); // 1: Details, 2: Verification Sent
+    const [step, setStep] = useState(1); 
     const [role, setRole] = useState('tenant');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -26,7 +26,7 @@ const Register = () => {
 
     return (
         <div className="mesh-gradient" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', position: 'relative', overflow: 'hidden' }}>
-            {/* Background Aura Elements */}
+            {}
             <div className="aura-bg" style={{ width: '400px', height: '400px', background: '#22C55E', top: '-100px', right: '-100px', opacity: 0.15 }}></div>
             <div className="aura-bg" style={{ width: '350px', height: '350px', background: '#1E3A8A', bottom: '-50px', left: '-50px', opacity: 0.1, animationDelay: '1.5s' }}></div>
 
@@ -56,7 +56,7 @@ const Register = () => {
                             <p style={{ color: 'var(--color-text-sec)', fontSize: '15px', fontWeight: '500' }}>Your premium stay starts here</p>
                         </div>
 
-                        {/* Role Switcher */}
+                        {}
                         <div style={{
                             display: 'flex',
                             background: '#F1F5F9',

@@ -60,7 +60,7 @@ const PropertyDetails = () => {
             if (navigator.share) {
                 await navigator.share(shareData);
             } else {
-                // Fallback: Copy to clipboard
+                
                 await navigator.clipboard.writeText(window.location.href);
                 alert("Link copied to clipboard!");
             }
@@ -82,7 +82,7 @@ const PropertyDetails = () => {
                         if (!brokerId) {
                             console.warn("Property listing is missing both ownerUid and brokerId:", found);
                         }
-                        // Check if current user has messaged this broker
+                        
                         checkMessageHistory(brokerId);
                     }
                 }
@@ -94,7 +94,7 @@ const PropertyDetails = () => {
         };
         fetchProperty();
 
-        // Increment view count
+        
         fetch(`https://staynest-6vsv.onrender.com/api/listings/${id}/view`, { method: 'PUT' })
             .catch(err => console.error("Error incrementing view count:", err));
     }, [id]);
@@ -109,7 +109,7 @@ const PropertyDetails = () => {
                 where("participants", "array-contains", user.uid)
             );
             const querySnapshot = await getDocs(q);
-            // Check if any chat exists with the broker
+            
             const exists = querySnapshot.docs.some(doc => doc.data().participants.includes(brokerId));
             setHasMessaged(exists);
         } catch (error) {
@@ -131,7 +131,7 @@ const PropertyDetails = () => {
         </div>
     );
 
-    const images = property.images && property.images.length > 0 ? property.images : [property.image || 'https://via.placeholder.com/800x600?text=No+Photo'];
+    const images = property.images && property.images.length > 0 ? property.images : [property.image || 'https:
 
     const getIconForAmenity = (name) => {
         const icons = {
@@ -156,7 +156,7 @@ const PropertyDetails = () => {
 
     return (
         <div style={{ paddingBottom: '120px', background: 'white', minHeight: '100vh', position: 'relative' }}>
-            {/* Nav Header */}
+            {}
             <div style={{ position: 'absolute', top: '16px', left: '16px', right: '16px', zIndex: 100, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <button onClick={() => navigate(-1)} className="heart-button" style={{ background: 'white' }}>
                     <span className="material-icons-round">arrow_back</span>
@@ -177,7 +177,7 @@ const PropertyDetails = () => {
                     <button
                         onClick={() => {
                             if (window.confirm("Report this listing as suspicious?")) {
-                                // In a real app, this would open a modal for details
+                                
                                 alert("Thank you. Our safety team will review this listing shortly.");
                             }
                         }}
@@ -190,9 +190,9 @@ const PropertyDetails = () => {
                 </div>
             </div>
 
-            {/* Premium Masonry Gallery */}
+            {}
             <div style={{ maxWidth: '1120px', margin: '24px auto', padding: '0 24px', height: '400px', display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gridTemplateRows: '1fr 1fr', gap: '8px', borderRadius: '24px', overflow: 'hidden' }}>
-                {/* Main Large Image */}
+                {}
                 <div style={{ gridArea: '1 / 1 / 3 / 2', position: 'relative', cursor: 'pointer' }} onClick={() => setCurrentImageIndex(0)}>
                     <img
                         src={images[0]}
@@ -202,7 +202,7 @@ const PropertyDetails = () => {
                     />
                 </div>
 
-                {/* Secondary Images */}
+                {}
                 <div style={{ gridArea: '1 / 2 / 2 / 3', cursor: 'pointer' }} onClick={() => setCurrentImageIndex(1)}>
                     <img src={images[1] || images[0]} alt="View 2" style={{ width: '100%', height: '100%', objectFit: 'cover' }} className="hover-scale" />
                 </div>
@@ -223,7 +223,7 @@ const PropertyDetails = () => {
             </div>
 
             <div style={{ padding: '32px 24px', maxWidth: '800px', margin: '0 auto' }}>
-                {/* Title and Badge Section */}
+                {}
                 <div style={{ color: 'var(--color-brand)', fontWeight: '800', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>
                     Verified Premium Property
                 </div>
@@ -286,7 +286,7 @@ const PropertyDetails = () => {
                     ))}
                 </div>
 
-                {/* Broker High-end Card */}
+                {}
                 <div className="premium-card" style={{ padding: '24px', display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '48px', background: '#F8FAFC', border: 'none' }}>
                     <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
                         <span className="material-icons-round" style={{ fontSize: '32px', color: 'var(--color-brand)' }}>verified_user</span>
@@ -306,7 +306,7 @@ const PropertyDetails = () => {
                 <Reviews propertyId={id} canWrite={hasMessaged} />
             </div>
 
-            {/* Premium Sticky Footer */}
+            {}
             <div className="glass-panel" style={{
                 position: 'fixed',
                 bottom: '24px',

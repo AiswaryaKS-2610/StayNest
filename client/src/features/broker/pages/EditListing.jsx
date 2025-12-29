@@ -8,8 +8,8 @@ const EditListing = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [publishing, setPublishing] = useState(false);
-    const [images, setImages] = useState([]); // These are new selected files
-    const [existingUrls, setExistingUrls] = useState([]); // These are current URLs
+    const [images, setImages] = useState([]); 
+    const [existingUrls, setExistingUrls] = useState([]); 
     const [formData, setFormData] = useState({
         title: '',
         price: '',
@@ -106,21 +106,21 @@ const EditListing = () => {
             }
             const token = await user.getIdToken();
 
-            // 1. Upload new images if any
+            
             const newUrls = await uploadImages();
             const finalImageUrls = [...existingUrls, ...newUrls];
 
-            // Geocode using Eircode for precision with fallback
+            
             let lat = formData.lat || 53.3498, lng = formData.lng || -6.2603;
             try {
-                // Try 1: Eircode (Most precise)
+                
                 let geoRes = await fetch(
                     `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(formData.eircode + ', Ireland')}`,
                     { headers: { 'User-Agent': 'StayNest-App' } }
                 );
                 let geoData = await geoRes.json();
 
-                // Try 2: Eircode + Location (More context)
+                
                 if (!geoData || geoData.length === 0) {
                     geoRes = await fetch(
                         `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(formData.eircode + ', ' + formData.location + ', Ireland')}`,
@@ -129,7 +129,7 @@ const EditListing = () => {
                     geoData = await geoRes.json();
                 }
 
-                // Try 3: Location only (Fallback)
+                
                 if (!geoData || geoData.length === 0) {
                     geoRes = await fetch(
                         `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(formData.location + ', Ireland')}`,
@@ -146,7 +146,7 @@ const EditListing = () => {
                 console.error("Geocoding failed:", err);
             }
 
-            // 2. Update via our backend
+            
             const response = await fetch(`https://staynest-6vsv.onrender.com/api/listings/${id}`, {
                 method: 'PUT',
                 headers: {
@@ -205,7 +205,7 @@ const EditListing = () => {
             <form onSubmit={handleSubmit} style={{ background: 'white', padding: '32px', borderRadius: '24px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)', border: '1px solid #E2E8F0' }}>
                 <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700' }}>Manage Photos</h3>
 
-                {/* Existing Photos */}
+                {}
                 {existingUrls.length > 0 && (
                     <div style={{ marginBottom: '20px' }}>
                         <p style={{ fontSize: '13px', fontWeight: '600', color: '#64748B', marginBottom: '8px' }}>Current Photos</p>
@@ -226,7 +226,7 @@ const EditListing = () => {
                     </div>
                 )}
 
-                {/* New Photo Upload */}
+                {}
                 <div style={{
                     border: '1.5px dashed var(--color-brand)',
                     padding: '32px',

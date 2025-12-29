@@ -49,7 +49,7 @@ const Profile = () => {
             const result = await response.json();
             const photoURL = result.secure_url;
 
-            // Update Firestore
+            
             const { auth, db } = await import('../../../firebase.config');
             const { doc, updateDoc } = await import('firebase/firestore');
             const userRef = doc(db, "users", auth.currentUser.uid);

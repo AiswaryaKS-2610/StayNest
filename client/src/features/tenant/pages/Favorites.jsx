@@ -17,7 +17,7 @@ const Favorites = () => {
             return;
         }
 
-        // 1. Listen to user's favorites array in Firestore
+        
         const unsubscribe = onSnapshot(doc(db, "users", currentUser.uid), async (userDoc) => {
             if (userDoc.exists()) {
                 const favoriteIds = userDoc.data().favorites || [];
@@ -28,7 +28,7 @@ const Favorites = () => {
                     return;
                 }
 
-                // 2. Fetch all properties and filter by favorite IDs
+                
                 try {
                     const response = await fetch('https://staynest-6vsv.onrender.com/api/listings');
                     if (response.ok) {

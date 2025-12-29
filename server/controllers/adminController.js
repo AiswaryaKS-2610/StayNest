@@ -1,6 +1,6 @@
 const admin = require('firebase-admin');
 
-// LISTING ACTIONS
+
 const getPendingListings = async (req, res) => {
     try {
         const db = admin.firestore();
@@ -47,7 +47,7 @@ const adminDeleteListing = async (req, res) => {
     }
 };
 
-// BROKER ACTIONS
+
 const getBrokers = async (req, res) => {
     try {
         const db = admin.firestore();
@@ -74,7 +74,7 @@ const verifyBroker = async (req, res) => {
 
 const blockUser = async (req, res) => {
     const { id } = req.params;
-    const { block } = req.body; // boolean
+    const { block } = req.body; 
     try {
         const db = admin.firestore();
         await db.collection('users').doc(id).update({ isBlocked: block });
@@ -88,14 +88,14 @@ const getAdminStats = async (req, res) => {
     try {
         const db = admin.firestore();
 
-        // Parallel fetch for counts
+        
         const [listingsSnap, usersSnap] = await Promise.all([
             db.collection('listings').count().get(),
             db.collection('users').count().get()
         ]);
 
-        // Note: count() aggregation requires newer Firebase Admin SDK. 
-        // If that fails, we might fall back to Snapshot.size
+        
+        
 
         const pendingSnap = await db.collection('listings').where('status', '==', 'pending').get();
         const brokersSnap = await db.collection('users').where('role', '==', 'broker').get();

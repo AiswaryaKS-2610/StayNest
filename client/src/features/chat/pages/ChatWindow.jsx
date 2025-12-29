@@ -17,7 +17,7 @@ import {
 
 const ChatWindow = () => {
     const navigate = useNavigate();
-    const { id: otherUserId } = useParams(); // URL parameter is the person we are talking to
+    const { id: otherUserId } = useParams(); 
     const location = useLocation();
     const isBrokerView = location.pathname.startsWith('/broker');
     const [input, setInput] = useState('');
@@ -26,12 +26,12 @@ const ChatWindow = () => {
     const [chatData, setChatData] = useState(null);
     const scrollRef = useRef();
 
-    // Context from navigation (if any)
+    
     const propertyContext = location.state || {};
 
     const currentUser = auth.currentUser;
 
-    // Chat ID is a combination of both UIDs (smaller first to be consistent)
+    
     const getChatId = () => {
         if (!currentUser || !otherUserId) return null;
         const ids = [currentUser.uid, otherUserId].sort();
@@ -43,7 +43,7 @@ const ChatWindow = () => {
     useEffect(() => {
         if (!chatId) return;
 
-        // 1. Fetch other user's info
+        
         const fetchOtherUser = async () => {
             const userDoc = await getDoc(doc(db, "users", otherUserId));
             if (userDoc.exists()) {
@@ -52,14 +52,14 @@ const ChatWindow = () => {
         };
         fetchOtherUser();
 
-        // 2. Listen for chat document (to get property context)
+        
         const chatUnsubscribe = onSnapshot(doc(db, "chats", chatId), (snapshot) => {
             if (snapshot.exists()) {
                 setChatData(snapshot.data());
             }
         });
 
-        // 3. Listen for messages
+        
         const q = query(
             collection(db, "chats", chatId, "messages"),
             orderBy("createdAt", "asc")
@@ -72,14 +72,14 @@ const ChatWindow = () => {
             }));
             setMessages(msgs);
 
-            // Reset unread count for current user when messages are loaded/seen
+            
             if (msgs.length > 0 && currentUser) {
                 updateDoc(doc(db, "chats", chatId), {
                     [`unreadCount_${currentUser.uid}`]: 0
                 }).catch(err => console.error("Error resetting unread count:", err));
             }
 
-            // Scroll to bottom
+            
             setTimeout(() => {
                 scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
             }, 100);
@@ -91,8 +91,8 @@ const ChatWindow = () => {
         };
     }, [chatId, otherUserId, currentUser.uid]);
 
-    // Theme Logic - REVERTED TO STANDARD
-    // const isBuddyChat = location.state?.isBuddyChat || chatData?.propertyTitle === 'Buddy Up Request';
+    
+    
     const themeColor = 'var(--color-brand)';
     const lightThemeColor = 'var(--color-brand-light)';
 
@@ -115,7 +115,7 @@ const ChatWindow = () => {
         setInput('');
 
         try {
-            // Ensure the main chat document exists
+            
             const chatMeta = {
                 participants: [currentUser.uid, otherUserId],
                 lastMessage: messageText,
@@ -124,7 +124,7 @@ const ChatWindow = () => {
                 [`unreadCount_${otherUserId}`]: increment(1)
             };
 
-            // If we have property context and it's not already set, add it
+            
             if ((propertyContext.propertyId || propertyContext.propertyTitle) && !chatData?.propertyId) {
                 chatMeta.propertyId = propertyContext.propertyId || 'buddy-up';
                 chatMeta.propertyTitle = propertyContext.propertyTitle || 'Buddy Up Request';
@@ -133,7 +133,7 @@ const ChatWindow = () => {
             console.log("Sending message to Chat:", chatId, chatMeta);
             await setDoc(doc(db, "chats", chatId), chatMeta, { merge: true });
 
-            // Add the actual message
+            
             await addDoc(collection(db, "chats", chatId, "messages"), {
                 text: messageText,
                 senderId: currentUser.uid,
@@ -162,7 +162,7 @@ const ChatWindow = () => {
             border: isBrokerView ? '1px solid #E2E8F0' : 'none',
             boxShadow: isBrokerView ? '0 4px 20px rgba(0,0,0,0.03)' : 'none'
         }}>
-            {/* Header */}
+            {}
             <div style={{ padding: '16px 20px', borderBottom: '1px solid #eee', display: 'flex', alignItems: 'center', gap: '12px', background: 'white' }}>
                 {!isBrokerView && (
                     <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}>
@@ -178,7 +178,7 @@ const ChatWindow = () => {
                 </div>
             </div>
 
-            {/* Property/Context Banner */}
+            {}
             {(propertyContext.propertyTitle || chatData?.propertyTitle) && (
                 <div style={{ padding: '8px 16px', background: lightThemeColor, color: themeColor, fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
                     <span className="material-icons-round" style={{ fontSize: '18px' }}>info</span>
@@ -186,7 +186,7 @@ const ChatWindow = () => {
                 </div>
             )}
 
-            {/* Messages */}
+            {}
             <div style={{ flex: 1, padding: '16px', overflowY: 'auto', background: '#F7F7F7', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {messages.length === 0 && (
                     <div style={{ textAlign: 'center', color: '#999', marginTop: '40px' }}>
@@ -217,7 +217,7 @@ const ChatWindow = () => {
                 <div ref={scrollRef}></div>
             </div>
 
-            {/* Input Area */}
+            {}
             <form onSubmit={sendMessage} style={{ padding: '16px', borderTop: '1px solid #eee', display: 'flex', gap: '12px', alignItems: 'center', background: 'white' }}>
                 <input
                     type="text"

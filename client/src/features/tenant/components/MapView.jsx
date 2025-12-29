@@ -3,7 +3,7 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { useNavigate } from 'react-router-dom';
 
-// Replace with your actual token
+
 const MAPBOX_TOKEN = 'pk.eyJ1IjoiYWlzd2FyeWFrcyIsImEiOiJjbWpxZWhkeTgxb3NtM2RzZGU2dHgwdWxsIn0.kajAFDnDl90UDZ_yxGZzog';
 mapboxgl.accessToken = MAPBOX_TOKEN;
 
@@ -14,10 +14,10 @@ const MapView = ({ listings = [], center }) => {
     const navigate = useNavigate();
     const [mapLoaded, setMapLoaded] = useState(false);
 
-    // Use listings directly from props (already filtered by parent)
+    
     const filteredListings = listings;
 
-    // 2. Initialize map (Only once)
+    
     useEffect(() => {
         if (map.current) return;
 
@@ -32,7 +32,7 @@ const MapView = ({ listings = [], center }) => {
 
         map.current.on('load', () => {
             setMapLoaded(true);
-            map.current.resize(); // Fixes blank map issues on first load
+            map.current.resize(); 
         });
 
         return () => {
@@ -43,7 +43,7 @@ const MapView = ({ listings = [], center }) => {
         };
     }, []);
 
-    // 3. Update center when searched or moved
+    
     useEffect(() => {
         if (!map.current || !center) return;
         map.current.flyTo({
@@ -53,16 +53,16 @@ const MapView = ({ listings = [], center }) => {
         });
     }, [center]);
 
-    // 4. Update Markers (Handles Filtering & Detail Popups)
+    
     useEffect(() => {
         if (!map.current || !mapLoaded) return;
 
-        // Clear old markers
+        
         markers.current.forEach(marker => marker.remove());
         markers.current = [];
 
         filteredListings.forEach(listing => {
-            // Create Custom Pin Element
+            
             const el = document.createElement('div');
             el.className = 'custom-marker';
             el.style.cssText = `
@@ -84,7 +84,7 @@ const MapView = ({ listings = [], center }) => {
             priceText.textContent = `€${listing.price}`;
             el.appendChild(priceText);
 
-            // Detailed Popup HTML
+            
             const popupHTML = `
                 <div style="width: 220px; font-family: sans-serif;">
                     <img src="${listing.images?.[0] || listing.image}" style="width: 100%; height: 120px; object-fit: cover; border-radius: 8px;" />
@@ -104,7 +104,7 @@ const MapView = ({ listings = [], center }) => {
                 .setPopup(popup)
                 .addTo(map.current);
 
-            // Handle button click inside popup
+            
             popup.on('open', () => {
                 document.getElementById(`btn-${listing.id}`).onclick = () => {
                     navigate(`/property/${listing.id}`);
@@ -114,7 +114,7 @@ const MapView = ({ listings = [], center }) => {
             markers.current.push(marker);
         });
 
-        // Fit map to show all filtered results
+        
         if (filteredListings.length > 0 && !center) {
             const bounds = new mapboxgl.LngLatBounds();
             filteredListings.forEach(l => bounds.extend([l.lng, l.lat]));
@@ -138,7 +138,7 @@ const MapView = ({ listings = [], center }) => {
                 }}
             />
 
-            {/* Budget Indicator Badge - Removed as it was confusing */}
+            {}
             <div style={{
                 position: 'absolute', top: '20px', left: '20px', zIndex: 1,
                 background: 'white', padding: '8px 12px', borderRadius: '10px',

@@ -35,7 +35,7 @@ const Reviews = ({ propertyId, canWrite }) => {
                 ...doc.data()
             }));
 
-            // Sort manually by createdAt desc since we removed orderBy to avoid index errors
+            
             const sorted = fetchedReviews.sort((a, b) => {
                 const dateA = a.createdAt?.toDate?.() || new Date(0);
                 const dateB = b.createdAt?.toDate?.() || new Date(0);
@@ -67,7 +67,7 @@ const Reviews = ({ propertyId, canWrite }) => {
 
         setSubmitting(true);
         try {
-            // 1. Add the review
+            
             await addDoc(collection(db, "reviews"), {
                 propertyId,
                 userId: user.uid,
@@ -77,12 +77,12 @@ const Reviews = ({ propertyId, canWrite }) => {
                 createdAt: serverTimestamp()
             });
 
-            // 2. Calculate new average rating
+            
             const updatedReviews = [...reviews, { rating: Number(rating) }];
             const totalRating = updatedReviews.reduce((sum, r) => sum + r.rating, 0);
             const avgRating = (totalRating / updatedReviews.length).toFixed(1);
 
-            // 3. Update the listing document
+            
             const listingRef = doc(db, "listings", propertyId);
             const listingDoc = await getDoc(listingRef);
 

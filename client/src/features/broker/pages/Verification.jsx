@@ -98,14 +98,14 @@ const Verification = () => {
             const user = auth.currentUser;
             if (!user) return alert("User not found");
 
-            // Upload all 3 files to Cloudinary
+            
             const [frontUrl, backUrl, addressUrl] = await Promise.all([
                 uploadToCloudinary(files.front),
                 uploadToCloudinary(files.back),
                 uploadToCloudinary(files.address)
             ]);
 
-            // Submit verification request to backend
+            
             const token = await user.getIdToken();
             const response = await fetch('https://staynest-6vsv.onrender.com/api/verifications', {
                 method: 'POST',
@@ -159,7 +159,7 @@ const Verification = () => {
                 <p style={{ margin: '4px 0 0', color: '#64748B', fontSize: '15px' }}>Upload your documents to get verified and start listing properties.</p>
             </div>
 
-            {/* Verification Status Card */}
+            {}
             {fetchingStatus ? (
                 <div style={{ textAlign: 'center', padding: '40px' }}>
                     <div className="spinner"></div>
@@ -252,14 +252,14 @@ const Verification = () => {
                 </div>
             ) : null}
 
-            {/* Upload Form - Only show if no verification or rejected */}
+            {}
             {(!verificationStatus || verificationStatus.status === 'rejected') && (
                 <div style={{ background: 'white', padding: '40px', borderRadius: '24px', boxShadow: '0 8px 30px rgba(0,0,0,0.04)', border: '1px solid #E2E8F0', maxWidth: '700px' }}>
 
                     <h3 style={{ marginTop: 0, fontSize: '18px', fontWeight: '800', marginBottom: '20px' }}>1. Government Issued ID</h3>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '32px' }}>
 
-                        {/* Front ID */}
+                        {}
                         <div>
                             <label style={{ fontSize: '13px', fontWeight: '700', color: '#64748B', display: 'block', marginBottom: '8px' }}>Front of ID</label>
                             <div style={dropzoneStyle(!!files.front)} onClick={() => document.getElementById('front-id').click()}>
@@ -278,7 +278,7 @@ const Verification = () => {
                             </div>
                         </div>
 
-                        {/* Back ID */}
+                        {}
                         <div>
                             <label style={{ fontSize: '13px', fontWeight: '700', color: '#64748B', display: 'block', marginBottom: '8px' }}>Back of ID</label>
                             <div style={dropzoneStyle(!!files.back)} onClick={() => document.getElementById('back-id').click()}>

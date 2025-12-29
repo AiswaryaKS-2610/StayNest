@@ -1,13 +1,13 @@
 const admin = require('firebase-admin');
 const db = admin.firestore();
 
-// Submit verification request
+
 exports.submitVerification = async (req, res) => {
     try {
         const { idFront, idBack, proofOfAddress } = req.body;
         const userId = req.user.uid;
 
-        // Get user details
+        
         const userDoc = await db.collection('users').doc(userId).get();
         if (!userDoc.exists) {
             return res.status(404).json({ error: 'User not found' });
@@ -15,7 +15,7 @@ exports.submitVerification = async (req, res) => {
 
         const userData = userDoc.data();
 
-        // Check if already has pending verification
+        
         const existingVerification = await db.collection('verifications')
             .where('brokerId', '==', userId)
             .where('status', '==', 'pending')
@@ -25,7 +25,7 @@ exports.submitVerification = async (req, res) => {
             return res.status(400).json({ error: 'You already have a pending verification request' });
         }
 
-        // Create verification request
+        
         const verificationData = {
             brokerId: userId,
             brokerName: userData.name || userData.email,
@@ -52,7 +52,7 @@ exports.submitVerification = async (req, res) => {
     }
 };
 
-// Get all verifications (admin only)
+
 exports.getAllVerifications = async (req, res) => {
     try {
         const { status } = req.query;
@@ -73,11 +73,11 @@ exports.getAllVerifications = async (req, res) => {
             });
         });
 
-        // Sort in memory instead of using Firestore orderBy (avoids index requirement)
+        
         verifications.sort((a, b) => {
             const aTime = a.submittedAt?._seconds || 0;
             const bTime = b.submittedAt?._seconds || 0;
-            return bTime - aTime; // Descending order (newest first)
+            return bTime - aTime; 
         });
 
         res.json(verifications);
@@ -87,7 +87,7 @@ exports.getAllVerifications = async (req, res) => {
     }
 };
 
-// Approve verification
+
 exports.approveVerification = async (req, res) => {
     try {
         const { id } = req.params;
@@ -102,14 +102,14 @@ exports.approveVerification = async (req, res) => {
 
         const verificationData = verificationDoc.data();
 
-        // Update verification status
+        
         await verificationRef.update({
             status: 'approved',
             reviewedAt: admin.firestore.FieldValue.serverTimestamp(),
             reviewedBy: adminId
         });
 
-        // Update user's verified status
+        
         await db.collection('users').doc(verificationData.brokerId).update({
             isVerified: true,
             verifiedAt: admin.firestore.FieldValue.serverTimestamp()
@@ -122,7 +122,7 @@ exports.approveVerification = async (req, res) => {
     }
 };
 
-// Reject verification
+
 exports.rejectVerification = async (req, res) => {
     try {
         const { id } = req.params;
@@ -136,7 +136,7 @@ exports.rejectVerification = async (req, res) => {
             return res.status(404).json({ error: 'Verification request not found' });
         }
 
-        // Update verification status
+        
         await verificationRef.update({
             status: 'rejected',
             reviewedAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -151,7 +151,7 @@ exports.rejectVerification = async (req, res) => {
     }
 };
 
-// Get broker's verification status
+
 exports.getMyVerification = async (req, res) => {
     try {
         const userId = req.user.uid;
@@ -173,7 +173,7 @@ exports.getMyVerification = async (req, res) => {
             });
         });
 
-        // Sort in memory to avoid index requirement
+        
         verifications.sort((a, b) => {
             const aTime = a.submittedAt?._seconds || 0;
             const bTime = b.submittedAt?._seconds || 0;

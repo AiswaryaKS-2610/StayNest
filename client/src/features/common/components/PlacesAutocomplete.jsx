@@ -23,7 +23,7 @@ const PlacesAutocomplete = ({ value, onChange, placeholder = 'Search for a locat
             const response = await fetch(
                 `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?` +
                 `access_token=${MAPBOX_TOKEN}&` +
-                `country=IE&` + // Restrict to Ireland
+                `country=IE&` + 
                 `limit=5&` +
                 `types=address,place,locality,neighborhood`
             );
@@ -42,7 +42,7 @@ const PlacesAutocomplete = ({ value, onChange, placeholder = 'Search for a locat
         setInputValue(newValue);
         onChange(newValue);
 
-        // Debounce the API call
+        
         if (debounceTimer.current) {
             clearTimeout(debounceTimer.current);
         }

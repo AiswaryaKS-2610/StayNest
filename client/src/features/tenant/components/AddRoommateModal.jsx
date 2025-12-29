@@ -121,7 +121,7 @@ const AddRoommateModal = ({ isOpen, onClose, onProfileAdded, existingProfile }) 
 
                 <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
-                    {/* Photo Upload */}
+                    {}
                     <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '8px' }}>
                         <div
                             onClick={() => document.getElementById('roommate-photo-input').click()}
@@ -154,7 +154,7 @@ const AddRoommateModal = ({ isOpen, onClose, onProfileAdded, existingProfile }) 
                         </div>
                     </div>
 
-                    {/* Basic Info */}
+                    {}
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                         <div>
                             <label style={labelStyle}>Name</label>
@@ -203,7 +203,7 @@ const AddRoommateModal = ({ isOpen, onClose, onProfileAdded, existingProfile }) 
                         </div>
                     </div>
 
-                    {/* Preferences */}
+                    {}
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                         <div>
                             <label style={labelStyle}>Language Preference</label>
@@ -233,7 +233,7 @@ const AddRoommateModal = ({ isOpen, onClose, onProfileAdded, existingProfile }) 
                         </div>
                     </div>
 
-                    {/* Bio */}
+                    {}
                     <div>
                         <label style={labelStyle}>About Me</label>
                         <textarea
@@ -245,7 +245,7 @@ const AddRoommateModal = ({ isOpen, onClose, onProfileAdded, existingProfile }) 
                         />
                     </div>
 
-                    {/* Tags */}
+                    {}
                     <div>
                         <label style={labelStyle}>Lifestyle Tags</label>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '8px' }}>

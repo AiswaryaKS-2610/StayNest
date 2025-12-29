@@ -13,7 +13,7 @@ const ListingCard = ({ listing, searchTarget, collegeTarget, isBrokerView = fals
     useEffect(() => {
         if (!currentUser || isBrokerView) return;
 
-        // Listen to user's favorites to sync state
+        
         const unsubscribe = onSnapshot(doc(db, "users", currentUser.uid), (doc) => {
             if (doc.exists()) {
                 const favorites = doc.data().favorites || [];
@@ -48,9 +48,9 @@ const ListingCard = ({ listing, searchTarget, collegeTarget, isBrokerView = fals
         }
     };
 
-    // Helper: Haversine Distance
+    
     const getDistance = (lat1, lon1, lat2, lon2) => {
-        const R = 6371; // km
+        const R = 6371; 
         const dLat = (lat2 - lat1) * Math.PI / 180;
         const dLon = (lon2 - lon1) * Math.PI / 180;
         const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
@@ -60,7 +60,7 @@ const ListingCard = ({ listing, searchTarget, collegeTarget, isBrokerView = fals
         return R * c;
     };
 
-    // Helper: Value Estimation (Walking < 2km, else Transit/Drive)
+    
     const getTravelEstimate = (target) => {
         if (!target || !listing.lat || !listing.lng) return null;
 
@@ -68,15 +68,15 @@ const ListingCard = ({ listing, searchTarget, collegeTarget, isBrokerView = fals
         let time, mode, icon;
 
         if (dist < 2.0) {
-            // Assume Walking (5 km/h) = 12 min/km
+            
             time = Math.ceil(dist * 12);
             mode = 'Walk';
             icon = 'directions_walk';
         } else {
-            // Assume Transit/Drive mix (30 km/h) = 2 min/km + 5 min buffer
+            
             time = Math.ceil((dist * 2) + 5);
             mode = 'Transport';
-            icon = 'directions_bus'; // or commute
+            icon = 'directions_bus'; 
         }
 
         return {
@@ -95,7 +95,7 @@ const ListingCard = ({ listing, searchTarget, collegeTarget, isBrokerView = fals
     return (
         <>
             <div className="premium-card" style={{ marginBottom: '24px', position: 'relative', zIndex: 1 }}>
-                {/* Image Container */}
+                {}
                 <div style={{
                     height: '240px',
                     position: 'relative',
@@ -109,7 +109,7 @@ const ListingCard = ({ listing, searchTarget, collegeTarget, isBrokerView = fals
                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />
 
-                    {/* Gradient Overlay */}
+                    {}
                     <div style={{
                         position: 'absolute', bottom: 0, left: 0, right: 0,
                         height: '60%',
@@ -117,7 +117,7 @@ const ListingCard = ({ listing, searchTarget, collegeTarget, isBrokerView = fals
                         pointerEvents: 'none'
                     }} />
 
-                    {/* Commute Badges - Stacked if both exist */}
+                    {}
                     <div style={{
                         position: 'absolute', bottom: '12px', right: '12px',
                         display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-end'
@@ -149,7 +149,7 @@ const ListingCard = ({ listing, searchTarget, collegeTarget, isBrokerView = fals
                         )}
                     </div>
 
-                    {/* Badges */}
+                    {}
                     <div style={{ position: 'absolute', top: '16px', left: '16px', display: 'flex', gap: '8px' }}>
                         <div style={{
                             background: 'white', padding: '6px 12px', borderRadius: '30px',
@@ -246,7 +246,7 @@ const ListingCard = ({ listing, searchTarget, collegeTarget, isBrokerView = fals
                     )}
                 </div>
 
-                {/* Info Section */}
+                {}
                 <div style={{ padding: '20px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                         <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--color-text-hint)', letterSpacing: '0.5px' }}>
@@ -288,7 +288,7 @@ const ListingCard = ({ listing, searchTarget, collegeTarget, isBrokerView = fals
                                 Edit Details
                             </button>
                         ) : (
-                            // Minimal distance badge in info if no search/college selected
+                            
                             (!searchCommute && !collegeCommute && listing.distanceToSearch) && (
                                 <div style={{
                                     background: 'var(--color-brand)',

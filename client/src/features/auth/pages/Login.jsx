@@ -28,7 +28,7 @@ const Login = () => {
 
     return (
         <div className="mesh-gradient" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', position: 'relative', overflow: 'hidden' }}>
-            {/* Background Aura Elements */}
+            {}
             <div className="aura-bg" style={{ width: '400px', height: '400px', background: '#1E3A8A', top: '-100px', left: '-100px', opacity: 0.15 }}></div>
             <div className="aura-bg" style={{ width: '300px', height: '300px', background: '#22C55E', bottom: '-50px', right: '-50px', opacity: 0.1, animationDelay: '2s' }}></div>
 
@@ -56,7 +56,7 @@ const Login = () => {
                     <p style={{ color: 'var(--color-text-sec)', fontSize: '15px', fontWeight: '500' }}>Login to your premium stay experience</p>
                 </div>
 
-                {/* Role Switcher */}
+                {}
                 <div style={{
                     display: 'flex',
                     background: '#F1F5F9',

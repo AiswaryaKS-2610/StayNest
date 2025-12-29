@@ -11,12 +11,12 @@ const NewListing = () => {
         title: '',
         price: '',
         location: '',
-        lat: null, // Add lat
-        lng: null, // Add lng
+        lat: null, 
+        lng: null, 
         description: '',
         amenities: [],
-        type: 'Entire Home', // Main category
-        subType: 'Apartment', // Specific type
+        type: 'Entire Home', 
+        subType: 'Apartment', 
         bedrooms: '1',
         guests: '1',
         billsIncluded: true,
@@ -24,11 +24,11 @@ const NewListing = () => {
     });
 
     const handleImageChange = (e) => {
-        // ... existing image logic ...
+        
         if (e.target.files) {
             const files = Array.from(e.target.files);
             const validFiles = files.filter(file => {
-                const isValidSize = file.size <= 10 * 1024 * 1024; // 10MB limit
+                const isValidSize = file.size <= 10 * 1024 * 1024; 
                 if (!isValidSize) {
                     alert(`File ${file.name} is too large. Max size is 10MB.`);
                 }
@@ -37,7 +37,7 @@ const NewListing = () => {
             setImages(prev => [...prev, ...validFiles]);
         }
     };
-    // ... existing takePhoto ... 
+    
     const takePhoto = () => {
         if (navigator.camera) {
             navigator.camera.getPicture(
@@ -111,7 +111,7 @@ const NewListing = () => {
             }
             const token = await user.getIdToken();
 
-            // Store in Cloudinary first
+            
             let uploadedUrls = [];
             try {
                 uploadedUrls = await uploadImages();
@@ -119,27 +119,27 @@ const NewListing = () => {
                 throw new Error(`Cloudinary Upload Failed: ${err.message || err}`);
             }
 
-            // Determine Lat/Lng
+            
             let lat = formData.lat || 53.3498;
             let lng = formData.lng || -6.2603;
 
-            // If smart search wasn't used/didn't provide coords, try fallback geocoding
+            
             if (!formData.lat || !formData.lng) {
                 try {
-                    // Ireland bounding box validation
+                    
                     const isInIreland = (latitude, longitude) => {
                         return latitude >= 51.4 && latitude <= 55.4 &&
                             longitude >= -10.5 && longitude <= -5.5;
                     };
 
-                    // Try 1: Eircode (Most precise)
+                    
                     let geoRes = await fetch(
                         `https://nominatim.openstreetmap.org/search?format=json&countrycodes=ie&q=${encodeURIComponent(formData.eircode + ', Ireland')}`,
                         { headers: { 'User-Agent': 'StayNest-App' } }
                     );
                     let geoData = await geoRes.json();
 
-                    // Try 2: Location provided (Fallback)
+                    
                     if (!geoData || geoData.length === 0) {
                         geoRes = await fetch(
                             `https://nominatim.openstreetmap.org/search?format=json&countrycodes=ie&q=${encodeURIComponent(formData.location + ', Dublin, Ireland')}`,
@@ -163,7 +163,7 @@ const NewListing = () => {
                 }
             }
 
-            // Then send to our backend
+            
             try {
                 const response = await fetch('https://staynest-6vsv.onrender.com/api/listings', {
                     method: 'POST',
@@ -202,7 +202,7 @@ const NewListing = () => {
         }
     };
 
-    // ... handleTagChange ...
+    
     const handleTagChange = (tag) => {
         setFormData(prev => ({
             ...prev,
@@ -212,7 +212,7 @@ const NewListing = () => {
         }));
     };
 
-    // ... Render ...
+    
     return (
         <>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px' }}>
@@ -224,7 +224,7 @@ const NewListing = () => {
 
             <form onSubmit={handleSubmit} style={{ background: 'white', padding: '32px', borderRadius: '24px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)', border: '1px solid #E2E8F0' }}>
 
-                {/* ... Add Photos section ... */}
+                {}
                 <h3 style={{ marginBottom: '12px', fontSize: '18px', fontWeight: '700' }}>Add Photos</h3>
                 <div style={{
                     border: '1.5px dashed var(--color-brand)',
@@ -247,7 +247,7 @@ const NewListing = () => {
                         Select photos
                     </label>
                 </div>
-                {/* ... Take Photo Button ... */}
+                {}
                 <button
                     type="button"
                     onClick={takePhoto}
@@ -275,7 +275,7 @@ const NewListing = () => {
                     Take a Photo
                 </button>
 
-                {/* ... Image Preview Carosel ... */}
+                {}
                 {images.length > 0 && (
                     <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '12px', marginBottom: '24px' }}>
                         {images.map((img, index) => (
@@ -347,7 +347,7 @@ const NewListing = () => {
                     </div>
                 </div>
 
-                {/* ... Bed/Guests ... */}
+                {}
                 <div style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
                     <div style={{ flex: 1 }}>
                         <label style={labelStyle}>Bedrooms</label>
@@ -399,7 +399,7 @@ const NewListing = () => {
                     />
                 </div>
 
-                {/* REPLACED LOCATION INPUT */}
+                {}
                 <div style={{ marginBottom: '16px' }}>
                     <label style={labelStyle}>Location</label>
                     <PlacesAutocomplete

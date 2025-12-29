@@ -11,7 +11,7 @@ const db = admin.firestore();
 
 async function setAdminRole() {
     try {
-        // Get the email from command line argument
+        
         const email = process.argv[2];
 
         if (!email) {
@@ -22,7 +22,7 @@ async function setAdminRole() {
 
         console.log(`Searching for user with email: ${email}`);
 
-        // Find user by email
+        
         const usersSnapshot = await db.collection('users')
             .where('email', '==', email)
             .get();
@@ -45,7 +45,7 @@ async function setAdminRole() {
         console.log(`Found user: ${userData.email}`);
         console.log(`Current role: ${userData.role || 'none'}`);
 
-        // Update to admin role
+        
         await db.collection('users').doc(userId).update({
             role: 'admin'
         });

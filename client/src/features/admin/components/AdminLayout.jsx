@@ -43,7 +43,7 @@ const AdminLayout = ({ children }) => {
 
     return (
         <div style={{ minHeight: '100vh', background: '#F8FAFC', paddingBottom: '0' }}>
-            {/* Admin Header */}
+            {}
             <div style={{
                 padding: '16px 24px',
                 background: '#1E293B',
@@ -80,7 +80,7 @@ const AdminLayout = ({ children }) => {
                 </div>
             </div>
 
-            {/* Admin Navigation Menu */}
+            {}
             <div style={{
                 background: 'white',
                 borderBottom: '1px solid #E2E8F0',
@@ -120,7 +120,7 @@ const AdminLayout = ({ children }) => {
                 ))}
             </div>
 
-            {/* Main Content */}
+            {}
             <div className="admin-content" style={{ padding: '24px' }}>
                 <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
                     {children}

@@ -22,7 +22,7 @@ const MyListings = () => {
                 setListings(data);
             } catch (err) {
                 console.error("Error loading listings:", err);
-                // If it's a fetch error or auth error, show it
+                
                 if (err.message && (err.message.includes('401') || err.message.includes('403'))) {
                     alert("Sync Error: Your client and server might be connected to different Firebase projects. Check console for details.");
                 }
@@ -49,7 +49,7 @@ const MyListings = () => {
                 </button>
             </div>
 
-            {/* Premium Stats Row */}
+            {}
             {!loading && listings.length > 0 && (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '40px' }}>
                     <StatCard
@@ -128,7 +128,7 @@ const StatCard = ({ title, value, icon, color }) => (
             width: '48px',
             height: '48px',
             borderRadius: '12px',
-            background: `${color}15`, // 10% opacity
+            background: `${color}15`, 
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',

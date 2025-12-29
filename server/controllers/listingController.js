@@ -7,7 +7,7 @@ const getListings = async (req, res) => {
             .where('status', '==', 'approved')
             .get();
 
-        // Fetch all verified brokers to avoid multiple hits
+        
         const verifiedUsersSnapshot = await db.collection('users')
             .where('isVerified', '==', true)
             .get();
@@ -36,7 +36,7 @@ const getBrokerListings = async (req, res) => {
         const uid = req.user.uid;
         const db = admin.firestore();
 
-        // Check if broker is verified
+        
         const userDoc = await db.collection('users').doc(uid).get();
         const isVerified = userDoc.exists && userDoc.data().isVerified === true;
 
@@ -62,9 +62,9 @@ const createListing = async (req, res) => {
         const db = admin.firestore();
         const newListing = req.body;
 
-        // Add timestamp and initial status
+        
         newListing.createdAt = admin.firestore.FieldValue.serverTimestamp();
-        newListing.status = 'pending'; // All new broker listings start as pending
+        newListing.status = 'pending'; 
 
         const docRef = await db.collection('listings').add(newListing);
         res.status(201).json({ message: "Listing created", id: docRef.id });
@@ -80,7 +80,7 @@ const updateListing = async (req, res) => {
         const db = admin.firestore();
         const updatedData = req.body;
 
-        // Don't allow updating createdAt or ownerUid
+        
         delete updatedData.createdAt;
         delete updatedData.ownerUid;
 

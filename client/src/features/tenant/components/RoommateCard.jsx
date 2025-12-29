@@ -8,7 +8,7 @@ const RoommateCard = ({ profile }) => {
 
     const handleMessage = () => {
         if (isOwnProfile) return;
-        // Navigate to chat (Fixing route to match App.jsx)
+        
         navigate(`/messages/${profile.userId}`, {
             state: {
                 propertyTitle: 'Buddy Up Request'
@@ -21,7 +21,7 @@ const RoommateCard = ({ profile }) => {
             marginBottom: '16px',
             background: 'white',
             borderRadius: '24px',
-            border: '2px solid transparent', // Ready for hover border
+            border: '2px solid transparent', 
             padding: '24px',
             boxShadow: '0 4px 20px rgba(0, 0, 0, 0.04)',
             transition: 'all 0.3s ease',
@@ -30,7 +30,7 @@ const RoommateCard = ({ profile }) => {
         }}
             onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-4px)';
-                e.currentTarget.style.boxShadow = '0 12px 30px rgba(124, 58, 237, 0.15)'; // Violet shadow glow
+                e.currentTarget.style.boxShadow = '0 12px 30px rgba(124, 58, 237, 0.15)'; 
                 e.currentTarget.style.borderColor = '#E9D5FF';
             }}
             onMouseLeave={(e) => {
@@ -39,7 +39,7 @@ const RoommateCard = ({ profile }) => {
                 e.currentTarget.style.borderColor = 'transparent';
             }}
         >
-            {/* Decorative Top Accent */}
+            {}
             <div style={{
                 position: 'absolute',
                 top: 0,
@@ -79,7 +79,7 @@ const RoommateCard = ({ profile }) => {
                         <h3 style={{ margin: '0 0 4px 0', fontSize: '20px', fontWeight: '800', color: '#1E293B', letterSpacing: '-0.5px' }}>
                             {profile.name}, {profile.age}
                         </h3>
-                        {/* Budget Badge */}
+                        {}
                         <span style={{
                             fontSize: '14px',
                             background: '#F0FDF4',
@@ -112,7 +112,7 @@ const RoommateCard = ({ profile }) => {
                 </div>
             </div>
 
-            {/* Tags */}
+            {}
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '20px' }}>
                 {profile.tags.map(tag => (
                     <span key={tag} style={{
@@ -131,7 +131,7 @@ const RoommateCard = ({ profile }) => {
                 ))}
             </div>
 
-            {/* Bio with quotes */}
+            {}
             <div style={{ position: 'relative', background: '#F8FAFC', padding: '16px', borderRadius: '16px', marginBottom: '20px' }}>
                 <span className="material-icons-round" style={{
                     position: 'absolute', top: -8, left: 16, background: '#22c55e', color: 'white',

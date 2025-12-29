@@ -28,7 +28,7 @@ async function listAndSetAdmin() {
             console.log(`  ${users.length}. ${data.email || 'No email'} - Role: ${data.role || 'none'}`);
         });
 
-        // Set the first user as admin
+        
         if (users.length > 0) {
             const firstUser = users[0];
             console.log(`\n🔧 Setting ${firstUser.email} as admin...`);

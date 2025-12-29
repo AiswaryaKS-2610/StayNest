@@ -1,37 +1,37 @@
 import React, { Suspense, lazy } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
-// Eager load critical Auth pages
+
 import Login from './features/auth/pages/Login';
 import Register from './features/auth/pages/Register';
 
-// Lazy load everything else
+
 const Profile = lazy(() => import('./features/auth/pages/Profile'));
 const TenantDashboard = lazy(() => import('./features/tenant/pages/Dashboard'));
 const PropertyDetails = lazy(() => import('./features/tenant/pages/PropertyDetails'));
 const Favorites = lazy(() => import('./features/tenant/pages/Favorites'));
 
-// Broker Pages
+
 const MyListings = lazy(() => import('./features/broker/pages/MyListings'));
 const NewListing = lazy(() => import('./features/broker/pages/NewListing'));
 const EditListing = lazy(() => import('./features/broker/pages/EditListing'));
 const Verification = lazy(() => import('./features/broker/pages/Verification'));
 const BrokerLayout = lazy(() => import('./features/broker/components/BrokerLayout'));
 
-// Admin Pages
+
 const AdminDashboard = lazy(() => import('./features/admin/pages/AdminDashboard'));
 const AdminListingReview = lazy(() => import('./features/admin/pages/AdminListingReview'));
 const AdminBrokerManagement = lazy(() => import('./features/admin/pages/AdminBrokerManagement'));
 const AdminVerifications = lazy(() => import('./features/admin/pages/AdminVerifications'));
 const AdminLayout = lazy(() => import('./features/admin/components/AdminLayout'));
 
-// Chat & Notifications
+
 const Inbox = lazy(() => import('./features/chat/pages/Inbox'));
 const ChatWindow = lazy(() => import('./features/chat/pages/ChatWindow'));
 const Notifications = lazy(() => import('./features/notifications/pages/Notifications'));
 const ChatbotWidget = lazy(() => import('./features/ai/components/ChatbotWidget'));
 
-// Loading Fallback
+
 const PageLoader = () => (
   <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: '#2563EB' }}>
     <div className="spinner"></div>
@@ -46,25 +46,25 @@ function App() {
         <Routes>
           <Route path="/" element={<Navigate to="/login" replace />} />
 
-          {/* Auth */}
+          {}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
-          {/* Profile (Shared or Role-specific) */}
+          {}
           <Route path="/profile" element={<Profile />} />
 
           <Route path="/notifications" element={<Notifications />} />
 
-          {/* Tenant */}
+          {}
           <Route path="/tenant/dashboard" element={<TenantDashboard />} />
           <Route path="/tenant/favorites" element={<Favorites />} />
           <Route path="/property/:id" element={<PropertyDetails />} />
 
-          {/* Chat - Tenant Side */}
+          {}
           <Route path="/messages" element={<Inbox />} />
           <Route path="/messages/:id" element={<ChatWindow />} />
 
-          {/* Broker */}
+          {}
           <Route path="/broker/dashboard" element={<BrokerLayout><MyListings /></BrokerLayout>} />
           <Route path="/broker/new-listing" element={<BrokerLayout><NewListing /></BrokerLayout>} />
           <Route path="/broker/edit-listing/:id" element={<BrokerLayout><EditListing /></BrokerLayout>} />
@@ -73,7 +73,7 @@ function App() {
           <Route path="/broker/messages/:id" element={<BrokerLayout><ChatWindow /></BrokerLayout>} />
           <Route path="/broker/profile" element={<BrokerLayout><Profile /></BrokerLayout>} />
 
-          {/* Admin */}
+          {}
           <Route path="/admin" element={<AdminLayout><AdminDashboard /></AdminLayout>} />
           <Route path="/admin/listings" element={<AdminLayout><AdminListingReview /></AdminLayout>} />
           <Route path="/admin/brokers" element={<AdminLayout><AdminBrokerManagement /></AdminLayout>} />

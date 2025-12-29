@@ -23,7 +23,7 @@ async function fixUserAndVerify(email) {
         const userDoc = userSnapshot.docs[0];
         const userId = userDoc.id;
 
-        // 1. Update user to broker and set verified
+        
         await db.collection('users').doc(userId).update({
             role: 'broker',
             isVerified: true,
@@ -31,7 +31,7 @@ async function fixUserAndVerify(email) {
         });
         console.log(`✅ User ${email} (UID: ${userId}) updated to 'broker' and set to verified: true.`);
 
-        // 2. Create or update approved verification record
+        
         const verifSnapshot = await db.collection('verifications').where('brokerId', '==', userId).get();
 
         const verifData = {
@@ -66,6 +66,6 @@ async function fixUserAndVerify(email) {
     }
 }
 
-// Fix both tenant accounts to be sure
+
 fixUserAndVerify('aiswaryakswork@gmail.com');
 fixUserAndVerify('aiswaryaks2610@gmail.com');

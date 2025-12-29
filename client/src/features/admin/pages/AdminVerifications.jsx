@@ -138,7 +138,7 @@ const AdminVerifications = () => {
                 </p>
             </div>
 
-            {/* Filter Tabs */}
+            {}
             <div style={{
                 display: 'flex',
                 gap: '12px',
@@ -217,7 +217,7 @@ const AdminVerifications = () => {
                 </div>
             )}
 
-            {/* Verification Detail Modal */}
+            {}
             {selectedVerification && (
                 <div style={{
                     position: 'fixed',

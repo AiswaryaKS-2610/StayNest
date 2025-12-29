@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 
 const TransportModal = ({ isOpen, onClose, property, selectedCollege }) => {
-    const [travelMode, setTravelMode] = useState('transit'); // 'transit', 'driving', 'walking'
+    const [travelMode, setTravelMode] = useState('transit'); 
 
     if (!isOpen || !property || !selectedCollege) return null;
 
-    // Google Maps Directions URL
+    
     const origin = `${property.lat},${property.lng}`;
     const destination = selectedCollege.name;
     const mapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&travelmode=${travelMode}`;
@@ -35,7 +35,7 @@ const TransportModal = ({ isOpen, onClose, property, selectedCollege }) => {
                 display: 'flex',
                 flexDirection: 'column'
             }}>
-                {/* Header */}
+                {}
                 <div style={{
                     padding: '20px 24px',
                     borderBottom: '1px solid #E2E8F0',
@@ -56,7 +56,7 @@ const TransportModal = ({ isOpen, onClose, property, selectedCollege }) => {
                     </button>
                 </div>
 
-                {/* Travel Mode Selector */}
+                {}
                 <div style={{
                     padding: '16px 24px',
                     display: 'flex',
@@ -94,7 +94,7 @@ const TransportModal = ({ isOpen, onClose, property, selectedCollege }) => {
                     ))}
                 </div>
 
-                {/* Map Preview - Using static approach since we don't have API key */}
+                {}
                 <div style={{ flex: 1, padding: '24px', overflowY: 'auto' }}>
                     <div style={{
                         background: '#F8FAFC',
@@ -131,7 +131,7 @@ const TransportModal = ({ isOpen, onClose, property, selectedCollege }) => {
                         </a>
                     </div>
 
-                    {/* Quick Info */}
+                    {}
                     <div style={{
                         marginTop: '24px',
                         display: 'grid',

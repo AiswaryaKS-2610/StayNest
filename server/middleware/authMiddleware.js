@@ -12,7 +12,7 @@ const verifyToken = async (req, res, next) => {
     try {
         const decodedToken = await admin.auth().verifyIdToken(idToken);
 
-        // Fetch user from Firestore to check blocked status
+        
         const db = admin.firestore();
         const userDoc = await db.collection('users').doc(decodedToken.uid).get();
 

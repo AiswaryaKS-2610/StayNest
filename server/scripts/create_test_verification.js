@@ -11,7 +11,7 @@ const db = admin.firestore();
 
 async function createTestVerification() {
     try {
-        // Get all users with role 'broker'
+        
         const usersSnapshot = await db.collection('users')
             .where('role', '==', 'broker')
             .get();
@@ -29,11 +29,11 @@ async function createTestVerification() {
             console.log(`${brokers.length}. ${data.email || 'No email'} (${data.name || 'No name'})`);
         });
 
-        // Use the first broker
+        
         const broker = brokers[0];
         console.log(`\n📝 Creating approved verification for: ${broker.email}`);
 
-        // Check if verification already exists
+        
         const existingVerification = await db.collection('verifications')
             .where('brokerId', '==', broker.id)
             .get();
@@ -47,7 +47,7 @@ async function createTestVerification() {
                 reviewedBy: 'auto-script'
             });
         } else {
-            // Create new verification
+            
             await db.collection('verifications').add({
                 brokerId: broker.id,
                 brokerName: broker.name || broker.email,
@@ -62,7 +62,7 @@ async function createTestVerification() {
             });
         }
 
-        // Update user's isVerified status
+        
         await db.collection('users').doc(broker.id).update({
             isVerified: true,
             verifiedAt: admin.firestore.FieldValue.serverTimestamp()

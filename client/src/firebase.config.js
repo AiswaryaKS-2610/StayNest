@@ -12,8 +12,8 @@ const firebaseConfig = {
     measurementId: "G-BZHPD26N2R"
 };
 
-// Initialize Firebase
+
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const auth = getAuth(app);
-// Note: Storage is now handled by Cloudinary
+

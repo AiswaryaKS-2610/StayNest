@@ -45,21 +45,21 @@
   --font-heading: 'Outfit', sans-serif;
   --font-body: 'Plus Jakarta Sans', sans-serif;
 
-  /* Calm Blue + Soft Green Theme */
+  
   --color-brand: #1E3A8A;
-  /* Deep Blue */
+  
   --color-brand-light: #EFF6FF;
   --color-success: #22C55E;
-  /* Soft Green */
+  
   --color-bg: #F8FAFC;
   --color-card: #FFFFFF;
   --color-text-pri: #1F2937;
-  /* Dark Gray */
+  
   --color-text-sec: #4B5563;
   --color-text-hint: #94A3B8;
 
   --color-cta: #22C55E;
-  /* CTA Green */
+  
   --color-cta-hover: #16A34A;
 
   --shadow-premium: 0 12px 40px -12px rgba(0, 0, 0, 0.08);
@@ -89,7 +89,7 @@ h4 {
   font-family: var(--font-heading);
 }
 
-/* Premium Utilities */
+
 .glass-panel {
   background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(20px);
@@ -179,7 +179,7 @@ h4 {
   }
 }
 
-/* Custom Scrollbar */
+
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -197,7 +197,7 @@ h4 {
   background: #94A3B8;
 }
 
-/* Glass & Mesh Overhaul */
+
 .mesh-gradient {
   background: radial-gradient(at 0% 0%, hsla(220, 83%, 64%, 0.15) 0px, transparent 50%),
     radial-gradient(at 50% 0%, hsla(150, 84%, 67%, 0.1) 0px, transparent 50%),
@@ -257,7 +257,7 @@ h4 {
   animation: aura-pulse 8s infinite ease-in-out;
 }
 
-/* Enhancements */
+
 .hover-scale {
   transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
   display: block;

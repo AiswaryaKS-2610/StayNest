@@ -38,7 +38,7 @@ const Inbox = () => {
                 };
             });
 
-            // Fetch names for all other users
+            
             const names = { ...userNames };
             const uniqueOtherIds = [...new Set(chats.map(c => c.otherUserId))];
 

@@ -1,6 +1,6 @@
 const admin = require('firebase-admin');
 const serviceAccount = require('../serviceAccountKey.json');
-require('dotenv').config({ path: '../.env' }); // Load env vars from parent directory if needed
+require('dotenv').config({ path: '../.env' }); 
 
 if (!admin.apps.length) {
     admin.initializeApp({

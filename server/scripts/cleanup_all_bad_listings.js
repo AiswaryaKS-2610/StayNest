@@ -21,17 +21,17 @@ async function cleanupAllBadListings() {
             const lat = data.lat;
             const lng = data.lng;
 
-            // Check for bad UK coordinates
+            
             if (lat === 52.0600343 && lng === -0.347478) {
                 console.log(`❌ Bad UK coords: ${doc.id} - ${data.title}`);
                 toDelete.push(doc.id);
             }
-            // Check for undefined/null coordinates
+            
             else if (lat === undefined || lat === null || lng === undefined || lng === null) {
                 console.log(`❌ Missing coords: ${doc.id} - ${data.title}`);
                 toDelete.push(doc.id);
             }
-            // Check if coordinates are outside Ireland (lat: 51.4-55.4, lng: -10.5 to -5.5)
+            
             else if (lat < 51.4 || lat > 55.4 || lng < -10.5 || lng > -5.5) {
                 console.log(`❌ Non-Ireland coords: ${doc.id} - ${data.title} (${lat}, ${lng})`);
                 toDelete.push(doc.id);

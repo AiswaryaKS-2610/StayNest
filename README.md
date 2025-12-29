@@ -1,207 +1,372 @@
-# StayNest: Smart Accommodation Finder & Rental Management System
+Project Report
 
-## 1. Project Overview
-**StayNest** is a cutting-edge, cross-platform application designed to revolutionize the student accommodation market in Dublin, Ireland. Built with a robust **MERN Stack** (MongoDB/Firebase, Express, React, Node.js) and wrapped for mobile via **Cordova**, StayNest bridges the gap between students looking for safe, verified housing and landlords (brokers) seeking reliable tenants.
+Project Title: StayNest – Smart Accommodation Finder & Rental Management System
+Domain: Web & Mobile Application Development
+Technology Stack: MERN Stack + Firebase + Cordova
+Target Users: Students, Brokers, Administrators
+Region Focus: Ireland
+Developed By: Aiswarya Koonakkampilly Sunilal & Sneha Shajan
 
-The platform addresses critical pain points in the current rental market:
--   **Scams & Safety:** Integrated verification systems for brokers to prevent fraud.
--   **Communication:** Real-time messaging between tenants and landlords.
--   **Location Intelligence:** Interactive maps with college proximity filtering.
--   **Smart Assistance:** An AI-powered chatbot to guide international students on local laws and neighborhoods.
+1. Introduction
+Finding safe, affordable, and verified student accommodation has become a major challenge in cities like Dublin, especially for international students. The lack of transparency, prevalence of rental scams, and inefficient communication between students and landlords have made the process stressful and unreliable.
+StayNest is a smart, cross-platform accommodation finder and rental management system designed to address these challenges. The platform connects students with verified brokers through a secure, interactive, and user-friendly application, ensuring trust, convenience, and safety.
 
----
+2. Objectives of the Project
+The main objectives of StayNest are:
+•	To provide a secure and scam-free accommodation platform for students
+•	To enable verified brokers to list properties efficiently
+•	To integrate location-based search using interactive maps
+•	To offer real-time communication between tenants and brokers
+•	To assist international students through an AI-powered chatbot
+•	To provide administrators with full control over listings and user verification
 
-## 2. Technical Architecture & Stack
+3. Scope of the System
+StayNest is designed as a full-stack web application with mobile support. The system supports three primary user roles:
+•	Tenant (Student): Search properties, view listings on maps, chat with brokers, save favorites, and get AI assistance
+•	Broker (Landlord): Post and manage property listings, upload verification documents, and communicate with tenants
+•	Admin: Review listings, verify brokers, manage users, and monitor platform activity
+The application is scalable and adaptable for expansion to other cities in the future.
 
-### Frontend (Client)
-The client application is built using **React 19** with **Vite** for lightning-fast development and build performance.
--   **Framework:** React (Functional Components + Hooks).
--   **Styling:** Modern CSS Variables with a custom design system (Calm Blue + Soft Green palette).
--   **Routing:** React Router v7 for seamless navigation.
--   **State Management:** React Context API (AuthContext).
--   **Maps:** **React Leaflet** & **Mapbox GL** for rendering interactive maps.
--   **Motion:** **Framer Motion** for premium UI animations and transitions.
+4. System Architecture
+StayNest follows a modular client-server architecture:
+•	Frontend: React-based single-page application
+•	Backend: Node.js and Express REST API
+•	Database: Firebase Firestore (NoSQL)
+•	Authentication: Firebase Authentication (JWT)
+•	Mobile Platform: Apache Cordova
+•	Hosting: Render (Backend)
+This architecture ensures scalability, performance, and real-time data synchronization.
 
-### Backend (Server)
-The server is a RESTful API built on **Node.js** and **Express**.
--   **Runtime:** Node.js.
--   **Framework:** Express.js for route handling and middleware.
--   **Database:** **Firebase Firestore** (NoSQL) for real-time data syncing.
--   **Authentication:** **Firebase Authentication** (JWT based) for secure user sessions.
--   **Deployment:** Render (Cloud Hosting).
+5. Technology Stack
+5.1 Frontend Technologies
+•	React 19 (Functional Components & Hooks)
+•	Vite (Fast Build Tool)
+•	React Router v7
+•	Context API (Authentication State Management)
+•	CSS Variables (Custom Design System)
+•	Framer Motion (Animations)
+•	React Leaflet & Mapbox GL (Maps Integration)
+5.2 Backend Technologies
+•	Node.js
+•	Express.js
+•	Firebase Admin SDK
+•	Firebase Firestore
+•	Firebase Authentication
+5.3 Mobile Integration
+•	Apache Cordova
+•	Android SDK
 
-### Mobile Wrapper
--   **Cordova:** Used to wrap the web application into a native Android APK, allowing access to device features like Geolocations and Camera.
+6. External APIs & Integrations
+6.1 Mapbox & Leaflet
+Used for interactive maps and location intelligence:
+•	Property visualization on maps
+•	College proximity filtering
+•	Address geocoding and autocomplete
+•	Custom map markers
+6.2 Firebase Services
+•	User authentication and role management
+•	Real-time database for listings and chat
+•	Secure cloud storage for images and documents
+6.3 StayNest AI Assistant
+A custom-built rule-based chatbot that provides:
+•	Neighborhood information
+•	Rental laws and tenant rights guidance
+•	Local attractions and city insights
 
----
+7. Module Description
+7.1 Authentication Module
+•	User registration and login
+•	Role-based access control (Tenant, Broker, Admin)
+•	Profile management
+7.2 Tenant Module
+•	Property search and filtering
+•	Interactive map-based listings
+•	Property details and booking requests
+•	Favorites management
+•	Buddy Up - Roommate finder
 
-## 3. External APIs & Integrations
-StayNest leverages several powerful external APIs to deliver its core features.
+7.2.1 Buddy Up Feature
+The Buddy Up feature helps students find compatible roommates based on their preferences and lifestyle choices. This feature addresses the common challenge of finding trustworthy and compatible roommates, especially for international students new to Dublin.
 
-### A. Mapbox & Leaflet (Location Intelligence)
-We utilize **Mapbox GL** and **Leaflet** to provide a rich mapping experience.
--   **Purpose:** To display property listings on an interactive map and allow students to filter homes based on their distance to major colleges (e.g., Trinity, UCD, DCU).
--   **Features:**
-    -   **Geocoding:** Converting addresses (e.g., "Dublin 2") into latitude/longitude coordinates.
-    -   **Custom Markers:** Visualizing properties with price tags directly on the map.
-    -   **Places Autocomplete:** Helping users find addresses quickly when posting listings.
+Key Features:
+•	Preference-based matching: Students can set preferences including budget range, cleanliness habits, study schedules, lifestyle choices, and interests
+•	Profile browsing: View profiles of other students looking for roommates with detailed compatibility scores
+•	Direct messaging: Chat with potential roommates through the integrated messaging system to discuss expectations and compatibility
+•	Safety first: All users are verified through the platform's authentication system
+•	Flexible search: Filter potential roommates by college, budget, move-in date, and other criteria
 
-### B. Firebase (Backend-as-a-Service)
-Firebase is the backbone of our data and authentication layer.
--   **Authentication:** Handles secure sign-up/login for Tenants, Brokers, and Admins.
--   **Firestore Database:** Stores all application data including User Profiles, Property Listings, Chat History, and Verification Requests.
--   **Storage:** Manages image uploads (Property photos, ID documents) securely in the cloud.
+How It Works:
+1.	Students complete their roommate preference profile including budget, lifestyle, and habits
+2.	The system suggests compatible matches based on shared preferences
+3.	Students can browse profiles and initiate conversations with potential roommates
+4.	Once compatible roommates connect, they can search for properties together or share listings
+5.	Both parties can communicate expectations and finalize roommate arrangements before booking
+7.3 Broker Module
+•	Property listing creation and editing
+•	Image uploads and address autocomplete
+•	Listing status tracking
+•	Broker identity verification
 
-### C. StayNest AI Assistant (Custom Logic)
-We have implemented a custom **AI Chatbot** (`ChatbotWidget.jsx`) to assist users.
--   **Implementation:** Unlike generic API wrappers, this is a custom-built rule engine tailored specifically for the Dublin rental market.
--   **Capabilities:**
-    -   **Neighborhood Advice:** "Tell me about Dublin 4" -> Returns verified info about safety and amenities.
-    -   **Legal Guidance:** Answers common questions about deposits, RTB registration, and tenant rights.
-    -   **Sightseeing:** Suggests local attractions based on the user's location query.
+7.3.1 Broker Verification Flow
+To ensure platform safety and prevent rental scams, all brokers must complete a verification process before their listings can go live. This verification system validates the broker's identity using official Irish documentation.
 
----
+Verification Process:
+1.	Broker Registration: Broker creates an account and selects the "Broker" role during signup
+2.	Document Submission: Broker uploads one of the following identity documents:
+   •	PPSN (Personal Public Service Number) - for Irish residents
+   •	GNIB (Garda National Immigration Bureau) card - for international landlords/brokers
+3.	Document Review: Admin reviews the submitted documents to verify:
+   •	Document authenticity and validity
+   •	Name matches the registered broker account
+   •	Document is clear and readable
+   •	Information is current and not expired
+4.	Verification Decision:
+   •	Approved: Broker receives verification badge and can publish listings immediately
+   •	Rejected: Broker is notified with reasons and can resubmit corrected documents
+5.	Listing Activation: Only verified brokers can have their listings appear in tenant searches
 
-## 4. Comprehensive File Structure & Explanation
+Benefits:
+•	Prevents fraudulent listings and scams
+•	Builds trust between tenants and landlords
+•	Ensures compliance with Irish rental regulations
+•	Protects both parties in rental transactions
+7.4 Admin Module
+•	Dashboard analytics
+•	Listing approval and rejection
+•	Broker verification review
+•	User and broker management
+7.5 Chat Module
+•	Real-time messaging using Firestore
+•	Inbox and chat window interface
+7.6 AI Assistance Module
+•	Chatbot widget for user support
+•	Rule-based responses tailored to Dublin
 
-This section provides a detailed breakdown of every key file and directory in the project, explaining functionality and purpose.
+8. App Flow
 
-### Root Directory
--   **`package.json`**: The manifest file for the entire project (if using workspaces) or the root Cordova configuration.
--   **`config.xml`**: critical for the **Cordova Mobile Build**. It defines the App Name ("StayNest"), Package ID (`com.staynest.app`), permissions (Camera, Geolocation), and icons for Android/iOS.
--   **`.gitignore`**: Specifies files that should *never* be committed to Git (e.g., `node_modules`, API keys, secrets).
--   **`README.md`**: This documentation file.
+The StayNest platform supports three distinct user roles, each with specific workflows and capabilities. Below are detailed flow descriptions for each role:
 
-### Client Directory (`/client`)
-This folder contains the entire React Frontend.
+8.1 Tenant/User Flow
 
-#### `client/public/`
--   **`staynest-logo.png` / `icon.png`**: Static assets used for the app icon and favicon.
--   **`manifest.json`**: Web App Manifest for PWA capabilities (allows "Add to Home Screen").
+User A (Tenant) Journey:
 
-#### `client/src/` (Source Code)
+1. Registration & Login
+   •	User A visits StayNest and clicks "Sign Up"
+   •	Enters email, password, and selects "Tenant" as role
+   •	Verifies email through OTP sent to their inbox
+   •	Completes profile with personal details (name, college, contact info)
+   •	Logs into the platform
 
-**1. Root Files:**
--   **`main.jsx`**: The entry point of the React application. It wraps the `App` component with `BrowserRouter` and `AuthProvider`.
--   **`App.jsx`**: The main component that defines the application Routes. It handles the logic for switching between Tenant, Broker, and Admin views based on the user's role.
--   **`index.css`**: The global stylesheet. Contains the **CSS Variables** (`--color-brand`, `--color-bg-primary`) that define the application's "Calm Blue" theme.
+2. Property Search
+   •	User A lands on the Tenant Dashboard
+   •	Uses search filters to specify preferences:
+      - College proximity (e.g., Trinity College Dublin, UCD)
+      - Budget range
+      - Property type (shared room, private room, studio)
+      - Amenities (WiFi, laundry, parking)
+   •	Views properties on an interactive map with markers
+   •	Clicks on property markers to see quick details
 
-**2. `client/src/services/` (API Layer)**
--   **`api.js`**: The central networking file. It currently points to the **Production Render Backend** (`https://staynest-6vsv.onrender.com/api`). All external API calls go through here to ensure a single source of truth for the base URL.
--   **`roommateService.js`**: Specific service methods for fetching and managing roommate profiles (mock data or API fetchers).
+3. Property Details & Favorites
+   •	User A clicks on a listing to view full details
+   •	Reviews property images, description, amenities, and location
+   •	Checks broker verification status (verified badge)
+   •	Saves property to "Favorites" for later review
+   •	Compares multiple properties from favorites list
 
-**3. `client/src/context/`**
--   **`AuthContext.jsx`**: A React Context provider that listens to Firebase Auth state changes. It exposes the `currentUser` object and `loading` state to the rest of the app, ensuring protected pages are only accessible when logged in.
+4. Buddy Up - Finding Roommates
+   •	User A navigates to "Buddy Up" section
+   •	Completes roommate preference profile:
+      - Budget range
+      - Cleanliness level
+      - Study habits (quiet hours, group study)
+      - Lifestyle preferences (vegetarian, non-smoker, etc.)
+   •	Browses potential roommate profiles with compatibility scores
+   •	Initiates chat with compatible users (e.g., User B)
+   •	Discusses expectations and decides to search together
 
-**4. `client/src/features/` (Feature Modules)**
-This directory organizes code by usage domain (feature-based architecture).
+5. Contacting Brokers
+   •	User A finds a suitable property
+   •	Clicks "Contact Broker" to initiate chat
+   •	Sends message inquiring about availability, viewing schedule
+   •	Receives real-time responses from the broker
+   •	Schedules property viewing
 
-**Feature: Authentication (`features/auth`)**
--   **`pages/Login.jsx`**: The user login screen. Handles email/password authentication via Firebase.
--   **`pages/Register.jsx`**: The registration screen. Includes logic for selecting a role (Tenant vs Broker) and creating the initial user profile in Firestore.
--   **`pages/Profile.jsx`**: Users can view and edit their personal details here.
+6. AI Assistant Support
+   •	User A clicks on the AI chatbot widget
+   •	Asks questions about:
+      - Neighborhood safety and amenities
+      - Irish rental laws and tenant rights
+      - Public transport options
+      - Local attractions and facilities
+   •	Receives instant, helpful responses
 
-**Feature: Tenant (`features/tenant`)**
--   **`pages/Dashboard.jsx`**: The main landing page for students. It includes the **Search Bar**, **College Filters**, and the grid of **Property Listings**.
--   **`pages/PropertyDetails.jsx`**: The "Single Listing" view. Displays high-quality photos, amenities list, Google Maps location, and the "Book Viewing" button.
--   **`pages/Favorites.jsx`**: Displays a list of properties the user has "Hearted".
--   **`components/SearchFilters.jsx`**: The UI component for the "College" dropdown and "Price Range" slider.
--   **`components/RoommateCard.jsx`**: A UI card component used to display potential roommates in the "Find a Roommate" section.
+7. Ongoing Activities
+   •	User A can view chat history with brokers
+   •	Update search preferences anytime
+   •	Manage favorites list
+   •	Update profile information
+   •	Log out securely
 
-**Feature: Broker (`features/broker`)**
--   **`pages/NewListing.jsx`**: A complex form that allows landlords to upload property details. It integrates **Mapbox Autocomplete** for address entry and handles image file selection.
--   **`pages/MyListings.jsx`**: A dashboard for brokers to see all properties they have posted and their current status (Active/Pending).
--   **`pages/EditListing.jsx`**: Allows brokers to update details of an existing property.
--   **`pages/Verification.jsx`**: A critical security page where brokers upload ID documents (Passport, Proof of Address) to get the "Verified" badge.
+8.2 Broker Flow
 
-**Feature: Admin (`features/admin`)**
--   **`pages/AdminDashboard.jsx`**: A high-level overview for platform administrators (User counts, Active listings).
--   **`pages/AdminListingReview.jsx`**: A moderation queue. Admins can Approve or Reject new property listings before they go live.
--   **`pages/AdminVerifications.jsx`**: Admins review the ID documents uploaded by brokers here.
--   **`pages/AdminBrokerManagement.jsx`**: Allows admins to ban abusive users or manage broker permissions.
+Broker B (Landlord) Journey:
 
-**Feature: Chat (`features/chat`)**
--   **`pages/Inbox.jsx`**: Displays a list of all active conversations the user has.
--   **`pages/ChatWindow.jsx`**: The actual chat interface. Messages are synced in real-time using Firestore `onSnapshot` listeners.
+1. Registration & Verification
+   •	Broker B visits StayNest and clicks "Sign Up"
+   •	Enters email, password, and selects "Broker" as role
+   •	Verifies email through OTP
+   •	Completes broker profile with business details
+   •	Logs into the platform
 
-**Feature: AI (`features/ai`)**
--   **`components/ChatbotWidget.jsx`**: The floating "StayNest Assistant". Contains the **Rule Engine** for answering questions about Dublin neighborhoods and tenancy laws.
+2. Identity Verification Submission
+   •	Broker B navigates to "Verification" section
+   •	Uploads identity document:
+      - PPSN card (for Irish residents), OR
+      - GNIB card (for international brokers)
+   •	Submits document for admin review
+   •	Receives notification: "Verification pending admin approval"
 
-**Feature: Common (`features/common`)**
--   **`components/BottomNav.jsx`**: The mobile navigation bar (Home, Favorites, Chat, Profile) visible on small screens.
--   **`components/PlacesAutocomplete.jsx`**: A reusable component that wraps the Mapbox Geocoding API for address search.
+3. Awaiting Verification
+   •	Broker B can create property listings but they remain in "Draft" status
+   •	Listings are NOT visible to tenants until verification is approved
+   •	Broker receives email notification when admin reviews the documents
 
----
+4. Post-Verification (Approved)
+   •	Admin approves Broker B's verification
+   •	Broker B receives "Verified" badge on profile
+   •	All draft listings automatically become "Active" and visible to tenants
 
-### Server Directory (`/server`)
-This folder contains the Node.js Backend API.
+5. Creating Property Listings
+   •	Broker B clicks "Add New Listing"
+   •	Fills in property details:
+      - Title and description
+      - Address (with Mapbox autocomplete)
+      - Rent amount and deposit
+      - Property type and room configuration
+      - Amenities (checkboxes for WiFi, parking, etc.)
+      - Availability date
+   •	Uploads property images (multiple photos)
+   •	Selects nearby colleges for proximity targeting
+   •	Clicks "Publish Listing"
 
-**1. Root Files:**
--   **`index.js`**: The entry point of the server. It initializes Express, connects to Firebase Admin SDK, configures CORS, and defines the API routes (`/api/listings`, `/api/users`, etc.).
--   **`serviceAccountKey.json`**: (Note: This is often ignored in Git). Contains the **Secret Credentials** allowing the server to talk to Firebase as a Super-Admin.
--   **`.env`**: Stores environment variables like `PORT` and API Keys.
+6. Managing Listings
+   •	Broker B views all listings on "My Listings" dashboard
+   •	Can edit listing details anytime
+   •	Can mark listings as "Rented" or "Unavailable"
+   •	Can delete outdated listings
+   •	Views listing status: Active, Pending, or Rejected
 
-**2. `server/controllers/` (Business Logic)**
--   **`listingController.js`**: Contains logic for CRUD operations on listings (Create, Read, Update, Delete). Example: `getAllListings`, `createListing`.
--   **`userController.js`**: Manages user profiles. Handles requests like "Register User" or "Update Profile".
--   **`verificationController.js`**: Handles the logic for submitting and reviewing verification documents.
--   **`adminController.js`**: Contains privileged logic (e.g., "Get System Stats") allowed only for admin users.
+7. Tenant Communication
+   •	Broker B receives chat notifications when tenants inquire
+   •	Opens chat inbox to view messages from interested tenants
+   •	Responds to inquiries about property details, viewing times
+   •	Schedules property viewings with potential tenants
+   •	Maintains conversation history for reference
 
-**3. `server/routes/` (API Endpoints)**
--   **`listingRoutes.js`**: Maps URLs like `GET /listings` to the function `listingController.getAllListings`.
--   **`userRoutes.js`**: Maps URLs like `POST /register` to `userController.registerUser`.
--   **`adminRoutes.js`**: Protects routes with middleware to ensure only Admins can access them.
+8. Ongoing Activities
+   •	Monitor listing performance (views, inquiries)
+   •	Update property availability
+   •	Respond to tenant messages
+   •	Renew or update verification documents if expired
+   •	Log out securely
 
-**4. `server/middleware/`**
--   **`authMiddleware.js`**: A critical file. It intercepts every request, checks the `Authorization` header for a Firebase Token, validates it, and attaches the user's ID to the request. If the token is invalid, it returns `401 Unauthorized`.
+8.3 Admin Flow
 
----
+Admin C Journey:
 
-## 5. Deployment & Build Guide
--   **Backend:** Deployed on **Render**. The server listens for requests and communicates with Firestore.
-    -   *Environment Variables:* `FIREBASE_SERVICE_ACCOUNT` (JSON Secret), `NODE_ENV=production`.
--   **Frontend:** Built with `npm run build` (Vite). The output is a static `dist` or `www` folder.
--   **Mobile:**
-    -   Built using `cordova build android`.
-    -   Wraps the `www` folder into an APK.
-    -   Requires **Android SDK** and **JAVA_HOME** configured on the build machine.
+1. Admin Login
+   •	Admin C accesses the platform with admin credentials
+   •	Logs into the Admin Panel (restricted access)
 
----
+2. Dashboard Overview
+   •	Admin C views the admin dashboard showing:
+      - Total number of users (Tenants and Brokers)
+      - Total active listings
+      - Pending broker verifications
+      - Pending listing approvals
+      - Recent platform activity
 
-## 6. How to Run Locally
+3. Broker Verification Review
+   •	Admin C navigates to "Pending Verifications"
+   •	Views list of brokers awaiting verification
+   •	Clicks on Broker B's verification request
+   •	Reviews uploaded documents (PPSN or GNIB):
+      - Checks document clarity and readability
+      - Verifies name matches broker account
+      - Confirms document is valid and not expired
+   •	Makes decision:
+      - Approve: Broker gets verified badge, listings go live
+      - Reject: Broker receives notification with rejection reason and can resubmit
 
-### Prerequisites
--   Node.js (v18+)
--   Git
+4. Listing Management
+   •	Admin C navigates to "All Listings"
+   •	Reviews property listings for policy compliance:
+      - Checks for inappropriate content
+      - Verifies pricing is reasonable
+      - Ensures images are appropriate
+      - Confirms property details are complete
+   •	Can approve, reject, or flag listings for review
+   •	Can delete fraudulent or spam listings
 
-### Steps
-1.  **Clone Repository:**
-    ```bash
-    git clone https://github.com/AiswaryaKS-2610/StayNest.git
-    cd StayNest
-    ```
+5. User Management
+   •	Admin C views all registered users (Tenants and Brokers)
+   •	Can search users by name, email, or role
+   •	Can view user activity and listing history
+   •	Can suspend or deactivate accounts violating platform policies
+   •	Can reset user passwords if requested
 
-2.  **Setup Backend:**
-    ```bash
-    cd server
-    npm install
-    npm run dev
-    ```
-    *The server runs on http://localhost:5000*
+6. Platform Monitoring
+   •	Admin C monitors chat activity for inappropriate behavior
+   •	Reviews reported listings or users
+   •	Analyzes platform usage statistics
+   •	Identifies trends (popular colleges, price ranges)
 
-3.  **Setup Frontend:**
-    ```bash
-    cd ../client
-    npm install
-    npm run dev
-    ```
-    *The client runs on http://localhost:5173*
+7. Ongoing Activities
+   •	Regularly review pending verifications
+   •	Monitor new listings for quality control
+   •	Respond to user support requests
+   •	Update platform policies as needed
+   •	Generate reports for platform performance
+   •	Log out securely
 
-4.  **Important:**
-    -   The current client code in `api.js` points to the **Live Render Server**.
-    -   To use your local server, edit `client/src/services/api.js` and change the URL back to `http://localhost:5000/api`.
+9. File Structure Overview
+The project is divided into three main directories:
+•	Client: React frontend
+•	Server: Node.js backend
+•	Root: Cordova configuration and project metadata
+Each feature is organized using a feature-based architecture for better maintainability and scalability.
 
----
+9. Deployment Details
+•	Backend deployed on Render
+•	Frontend built using Vite
+•	Mobile APK generated using Cordova
+•	Environment variables securely managed using .env
 
-**StayNest Team**
-*Aiswarya & Sneha - 2024*
+10. How to Run the Project Locally
+Prerequisites
+•	Node.js (v18+)
+•	Git
+Steps
+1.	Clone the repository
+2.	Install backend dependencies and run the server
+3.	Install frontend dependencies and start the client
+4.	Update API base URL for local testing
+
+11. Advantages of the System
+•	Secure and verified rental platform
+•	User-friendly interface
+•	Real-time chat and updates
+•	AI-based guidance for students
+•	Scalable and modular architecture
+
+12. Future Enhancements
+•	Payment integration for booking fees
+•	Advanced AI using NLP models
+•	iOS mobile application support
+•	Multi-city accommodation support
+•	Recommendation system for listings
+
+13. Project Conclusion
+StayNest successfully addresses the challenges faced by students in finding safe and verified accommodation. By combining modern web technologies, real-time data handling, location intelligence, and AI assistance, the system provides a reliable and efficient solution for both students and landlords.
+The project demonstrates strong practical application of full-stack development concepts and serves as a scalable foundation for future expansion.

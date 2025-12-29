@@ -45,7 +45,7 @@ const BrokerLayout = ({ children }) => {
 
     return (
         <div style={{ minHeight: '100vh', background: '#F8FAFC', paddingBottom: '80px' }}>
-            {/* Header for Branding */}
+            {}
             <div style={{
                 padding: '16px 24px',
                 background: 'white',
@@ -75,14 +75,14 @@ const BrokerLayout = ({ children }) => {
                 </div>
             </div>
 
-            {/* Main Content */}
+            {}
             <div className="broker-content" style={{ padding: '24px' }}>
                 <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
                     {children}
                 </div>
             </div>
 
-            {/* Bottom Nav */}
+            {}
             <BottomNav />
         </div>
     );

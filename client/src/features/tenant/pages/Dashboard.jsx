@@ -12,7 +12,7 @@ import AddRoommateModal from '../components/AddRoommateModal';
 
 const Dashboard = () => {
     const navigate = useNavigate();
-    // Persist active tab selection to support "Back" navigation
+    
     const [activeTab, setActiveTab] = useState(() => {
         return sessionStorage.getItem('dashboardTab') || 'properties';
     });
@@ -34,17 +34,17 @@ const Dashboard = () => {
     const [quickFilters, setQuickFilters] = useState([]);
     const [searchCoords, setSearchCoords] = useState(null);
 
-    // Roommate State
+    
     const [dbRoommates, setDbRoommates] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    // Filter out current user
+    
     const visibleRoommates = dbRoommates.filter(p => p.userId !== auth.currentUser?.uid);
 
-    // Check if current user already has a profile
+    
     const currentUserProfile = dbRoommates.find(p => p.userId === auth.currentUser?.uid);
 
-    // ... (CAMPUS_LOCATIONS and getDistance remain same)
+    
     const CAMPUS_LOCATIONS = {
         'Trinity College': { lat: 53.3438, lng: -6.2546 },
         'UCD': { lat: 53.3076, lng: -6.2225 },
@@ -60,7 +60,7 @@ const Dashboard = () => {
     };
 
     const getDistance = (lat1, lon1, lat2, lon2) => {
-        const R = 6371; // km
+        const R = 6371; 
         const dLat = (lat2 - lat1) * Math.PI / 180;
         const dLon = (lon2 - lon1) * Math.PI / 180;
         const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
@@ -94,7 +94,7 @@ const Dashboard = () => {
         refreshRoommates();
     }, []);
 
-    // Geocode search place when it changes
+    
     useEffect(() => {
         if (!activeFilters.searchPlace) {
             setSearchCoords(null);
@@ -116,14 +116,14 @@ const Dashboard = () => {
             }
         };
 
-        const timer = setTimeout(geocode, 400); // Faster Debounce
+        const timer = setTimeout(geocode, 400); 
         return () => clearTimeout(timer);
     }, [activeFilters.searchPlace]);
 
     useEffect(() => {
         let result = [...listings];
 
-        // 1. Basic Filters
+        
         result = result.filter(item => {
             const price = parseFloat(item.price);
             return price <= activeFilters.maxPrice;
@@ -137,9 +137,9 @@ const Dashboard = () => {
             });
         }
 
-        // 2. Proximity-based Search
+        
         if (searchCoords) {
-            // Calculate distance for ALL items and sort by proximity
+            
             result = result.map(item => ({
                 ...item,
                 distanceToSearch: getDistance(searchCoords.lat, searchCoords.lng, item.lat, item.lng)
@@ -156,7 +156,7 @@ const Dashboard = () => {
             });
         }
 
-        // Apply Category Filter
+        
         if (activeCategory !== 'All') {
             result = result.filter(item => {
                 const type = (item.type || 'Entire Home').toLowerCase();
@@ -169,29 +169,29 @@ const Dashboard = () => {
             });
         }
 
-        // 4. Quick Filters (Amenities)
+        
         if (quickFilters.length > 0) {
             console.log("Applying Quick Filters...");
             result = result.filter(item => {
-                // Combine 'tags' and 'amenities' arrays if both exist for backward compatibility
+                
                 const itemAmenities = [
                     ...(item.amenities || []),
                     ...(item.tags || [])
                 ].map(a => a.toLowerCase().trim());
 
                 const match = quickFilters.every(filter => {
-                    // Check exact match or partial match for things like 'Gym' vs 'Gym Access'
+                    
                     return itemAmenities.some(ia => ia.includes(filter.toLowerCase()));
                 });
 
                 if (!match) {
-                    // console.log(`Dropped QuickFilter: ${item.title} has ${itemAmenities}`);
+                    
                 }
                 return match;
             });
         }
 
-        {/* 3. Proximity to College (Secondary Sorting/Annotation) */ }
+        { }
         if (activeFilters.selectedCollege && activeFilters.selectedCollege.lat) {
             const campusCoords = activeFilters.selectedCollege;
             result = result.map(item => {
@@ -202,7 +202,7 @@ const Dashboard = () => {
             result = result.map(item => ({ ...item, distanceToCollege: null }));
         }
 
-        // 5. Sorting
+        
         switch (sortBy) {
             case 'price_low':
                 result.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
@@ -215,11 +215,11 @@ const Dashboard = () => {
                 break;
             case 'recommended':
             default:
-                // If College selected, sort by proximity
+                
                 if (activeFilters.selectedCollege) {
                     result.sort((a, b) => (a.distanceToCollege || Infinity) - (b.distanceToCollege || Infinity));
                 }
-                // Else if search made, sort by proximity
+                
                 else if (searchCoords) {
                     result.sort((a, b) => (a.distanceToSearch || Infinity) - (b.distanceToSearch || Infinity));
                 }
@@ -231,7 +231,7 @@ const Dashboard = () => {
 
     return (
         <div style={{ padding: '16px', paddingBottom: '90px', maxWidth: '600px', margin: '0 auto' }}>
-            {/* ... Header and Tabs ... */}
+            {}
             <div style={{ marginBottom: '32px', paddingTop: '10px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -263,7 +263,7 @@ const Dashboard = () => {
                     </button>
                 </div>
 
-                {/* Main Toggle */}
+                {}
                 <div style={{
                     background: '#F1F5F9',
                     padding: '4px',
@@ -313,7 +313,7 @@ const Dashboard = () => {
                     </button>
                 </div>
 
-                {/* Properties View */}
+                {}
                 {activeTab === 'properties' && (
                     <>
                         <SearchFilters
@@ -321,7 +321,7 @@ const Dashboard = () => {
                             onFilterChange={(newFilters) => setActiveFilters(prev => ({ ...prev, ...newFilters }))}
                         />
 
-                        {/* Quick Filters & Sorting */}
+                        {}
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px', gap: '12px' }}>
                             <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px', flex: 1, scrollbarWidth: 'none' }}>
                                 {['Wifi', 'Ensuite', 'Studio', 'Gym', 'Parking'].map(tag => {
@@ -381,10 +381,10 @@ const Dashboard = () => {
                 )}
             </div>
 
-            {/* Content Area */}
+            {}
             {activeTab === 'properties' ? (
                 <>
-                    {/* Premium Category Tabs */}
+                    {}
                     <div style={{
                         display: 'flex',
                         justifyContent: 'space-around',
@@ -464,7 +464,7 @@ const Dashboard = () => {
                     )}
                 </>
             ) : (
-                // Roommates View
+                
                 <div className="animate-in">
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                         <h3 style={{ fontSize: '20px', margin: 0, fontWeight: '800', color: 'var(--color-text-pri)' }}>
@@ -499,7 +499,7 @@ const Dashboard = () => {
                         </div>
                     </div>
 
-                    {/* My Profile Section */}
+                    {}
                     {currentUserProfile && (
                         <div style={{ marginBottom: '24px' }}>
                             <h4 style={{ fontSize: '14px', fontWeight: '700', color: 'var(--color-text-sec)', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
@@ -534,7 +534,7 @@ const Dashboard = () => {
                         </div>
                     )}
 
-                    {/* Other Roommates Section */}
+                    {}
                     {visibleRoommates.length > 0 && (
                         <h4 style={{ fontSize: '14px', fontWeight: '700', color: 'var(--color-text-sec)', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                             Other Roommates
