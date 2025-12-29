@@ -22,7 +22,7 @@ const AdminVerifications = () => {
             const token = await user.getIdToken();
             console.log('Fetching verifications with token:', token.substring(0, 20) + '...');
 
-            const response = await fetch(`http://localhost:5000/api/verifications?status=${filter}`, {
+            const response = await fetch(`https://staynest-6vsv.onrender.com/api/verifications?status=${filter}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -54,7 +54,7 @@ const AdminVerifications = () => {
             const user = auth.currentUser;
             const token = await user.getIdToken();
 
-            const response = await fetch(`http://localhost:5000/api/verifications/${id}/approve`, {
+            const response = await fetch(`https://staynest-6vsv.onrender.com/api/verifications/${id}/approve`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -80,7 +80,7 @@ const AdminVerifications = () => {
             const user = auth.currentUser;
             const token = await user.getIdToken();
 
-            const response = await fetch(`http://localhost:5000/api/verifications/${id}/reject`, {
+            const response = await fetch(`https://staynest-6vsv.onrender.com/api/verifications/${id}/reject`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

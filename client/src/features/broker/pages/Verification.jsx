@@ -32,7 +32,7 @@ const Verification = () => {
             const token = await user.getIdToken();
             console.log('Fetching status for:', user.email);
 
-            const response = await fetch('http://localhost:5000/api/verifications/my-verification', {
+            const response = await fetch('https://staynest-6vsv.onrender.com/api/verifications/my-verification', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -107,7 +107,7 @@ const Verification = () => {
 
             // Submit verification request to backend
             const token = await user.getIdToken();
-            const response = await fetch('http://localhost:5000/api/verifications', {
+            const response = await fetch('https://staynest-6vsv.onrender.com/api/verifications', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

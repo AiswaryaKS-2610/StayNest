@@ -15,7 +15,7 @@ const MyListings = () => {
                 const user = auth.currentUser;
                 if (!user) return;
                 const token = await user.getIdToken();
-                const res = await fetch('http://localhost:5000/api/listings/broker', {
+                const res = await fetch('https://staynest-6vsv.onrender.com/api/listings/broker', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const data = await res.json();

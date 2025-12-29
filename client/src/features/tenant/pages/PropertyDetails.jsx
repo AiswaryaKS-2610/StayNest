@@ -72,7 +72,7 @@ const PropertyDetails = () => {
     useEffect(() => {
         const fetchProperty = async () => {
             try {
-                const response = await fetch(`http://localhost:5000/api/listings`);
+                const response = await fetch(`https://staynest-6vsv.onrender.com/api/listings`);
                 if (response.ok) {
                     const data = await response.json();
                     const found = data.find(p => p.id === id);
@@ -95,7 +95,7 @@ const PropertyDetails = () => {
         fetchProperty();
 
         // Increment view count
-        fetch(`http://localhost:5000/api/listings/${id}/view`, { method: 'PUT' })
+        fetch(`https://staynest-6vsv.onrender.com/api/listings/${id}/view`, { method: 'PUT' })
             .catch(err => console.error("Error incrementing view count:", err));
     }, [id]);
 

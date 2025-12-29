@@ -18,7 +18,7 @@ const AdminDashboard = () => {
                 const user = auth.currentUser;
                 const token = await user.getIdToken();
 
-                const res = await fetch('http://localhost:5000/api/admin/stats', {
+                const res = await fetch('https://staynest-6vsv.onrender.com/api/admin/stats', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const data = await res.json();

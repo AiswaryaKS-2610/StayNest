@@ -18,7 +18,7 @@ export const registerUser = async (email, password, role, fullName) => {
         await sendEmailVerification(user);
 
         // Sync with Backend
-        await fetch('http://localhost:5000/api/users/register', {
+        await fetch('https://staynest-6vsv.onrender.com/api/users/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

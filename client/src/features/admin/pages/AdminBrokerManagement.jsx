@@ -9,7 +9,7 @@ const AdminBrokerManagement = () => {
         try {
             const user = auth.currentUser;
             const token = await user.getIdToken();
-            const res = await fetch('http://localhost:5000/api/admin/brokers', {
+            const res = await fetch('https://staynest-6vsv.onrender.com/api/admin/brokers', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await res.json();
@@ -31,7 +31,7 @@ const AdminBrokerManagement = () => {
         try {
             const user = auth.currentUser;
             const token = await user.getIdToken();
-            const res = await fetch(`http://localhost:5000/api/admin/users/${id}/block`, {
+            const res = await fetch(`https://staynest-6vsv.onrender.com/api/admin/users/${id}/block`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -137,7 +137,7 @@ const verifyBroker = async (id) => {
     try {
         const user = auth.currentUser;
         const token = await user.getIdToken();
-        const res = await fetch(`http://localhost:5000/api/admin/brokers/${id}/verify`, {
+        const res = await fetch(`https://staynest-6vsv.onrender.com/api/admin/brokers/${id}/verify`, {
             method: 'PUT',
             headers: { 'Authorization': `Bearer ${token}` }
         });

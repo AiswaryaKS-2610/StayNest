@@ -147,7 +147,7 @@ const EditListing = () => {
             }
 
             // 2. Update via our backend
-            const response = await fetch(`http://localhost:5000/api/listings/${id}`, {
+            const response = await fetch(`https://staynest-6vsv.onrender.com/api/listings/${id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

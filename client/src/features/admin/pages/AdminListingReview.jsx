@@ -9,7 +9,7 @@ const AdminListingReview = () => {
         try {
             const user = auth.currentUser;
             const token = await user.getIdToken();
-            const res = await fetch('http://localhost:5000/api/admin/listings/pending', {
+            const res = await fetch('https://staynest-6vsv.onrender.com/api/admin/listings/pending', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await res.json();
@@ -29,7 +29,7 @@ const AdminListingReview = () => {
         try {
             const user = auth.currentUser;
             const token = await user.getIdToken();
-            const res = await fetch(`http://localhost:5000/api/admin/listings/${id}/${action}`, {
+            const res = await fetch(`https://staynest-6vsv.onrender.com/api/admin/listings/${id}/${action}`, {
                 method: 'PUT',
                 headers: { 'Authorization': `Bearer ${token}` }
             });

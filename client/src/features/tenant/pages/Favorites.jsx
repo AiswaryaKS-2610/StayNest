@@ -30,7 +30,7 @@ const Favorites = () => {
 
                 // 2. Fetch all properties and filter by favorite IDs
                 try {
-                    const response = await fetch('http://localhost:5000/api/listings');
+                    const response = await fetch('https://staynest-6vsv.onrender.com/api/listings');
                     if (response.ok) {
                         const allListings = await response.json();
                         const myFavorites = allListings.filter(listing => favoriteIds.includes(listing.id));
