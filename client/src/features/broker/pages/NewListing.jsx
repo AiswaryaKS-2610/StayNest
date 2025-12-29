@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth } from '../../../firebase.config';
+import PlacesAutocomplete from '../../common/components/PlacesAutocomplete';
+
 const NewListing = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
@@ -9,6 +11,8 @@ const NewListing = () => {
         title: '',
         price: '',
         location: '',
+        lat: null, // Add lat
+        lng: null, // Add lng
         description: '',
         amenities: [],
         type: 'Entire Home', // Main category
@@ -20,6 +24,7 @@ const NewListing = () => {
     });
 
     const handleImageChange = (e) => {
+        // ... existing image logic ...
         if (e.target.files) {
             const files = Array.from(e.target.files);
             const validFiles = files.filter(file => {
@@ -32,12 +37,11 @@ const NewListing = () => {
             setImages(prev => [...prev, ...validFiles]);
         }
     };
-
+    // ... existing takePhoto ... 
     const takePhoto = () => {
         if (navigator.camera) {
             navigator.camera.getPicture(
                 (imageData) => {
-                    // Convert base64 to file blob
                     fetch(`data:image/jpeg;base64,${imageData}`)
                         .then(res => res.blob())
                         .then(blob => {
@@ -115,56 +119,48 @@ const NewListing = () => {
                 throw new Error(`Cloudinary Upload Failed: ${err.message || err}`);
             }
 
-            // Geocode using Eircode for precision with fallback
-            let lat = 53.3498, lng = -6.2603; // Default Dublin
-            try {
-                // Ireland bounding box validation
-                const isInIreland = (latitude, longitude) => {
-                    return latitude >= 51.4 && latitude <= 55.4 &&
-                        longitude >= -10.5 && longitude <= -5.5;
-                };
+            // Determine Lat/Lng
+            let lat = formData.lat || 53.3498;
+            let lng = formData.lng || -6.2603;
 
-                // Try 1: Eircode (Most precise)
-                let geoRes = await fetch(
-                    `https://nominatim.openstreetmap.org/search?format=json&countrycodes=ie&q=${encodeURIComponent(formData.eircode + ', Ireland')}`,
-                    { headers: { 'User-Agent': 'StayNest-App' } }
-                );
-                let geoData = await geoRes.json();
+            // If smart search wasn't used/didn't provide coords, try fallback geocoding
+            if (!formData.lat || !formData.lng) {
+                try {
+                    // Ireland bounding box validation
+                    const isInIreland = (latitude, longitude) => {
+                        return latitude >= 51.4 && latitude <= 55.4 &&
+                            longitude >= -10.5 && longitude <= -5.5;
+                    };
 
-                // Try 2: Eircode + Location (More context)
-                if (!geoData || geoData.length === 0) {
-                    geoRes = await fetch(
-                        `https://nominatim.openstreetmap.org/search?format=json&countrycodes=ie&q=${encodeURIComponent(formData.eircode + ', ' + formData.location + ', Ireland')}`,
+                    // Try 1: Eircode (Most precise)
+                    let geoRes = await fetch(
+                        `https://nominatim.openstreetmap.org/search?format=json&countrycodes=ie&q=${encodeURIComponent(formData.eircode + ', Ireland')}`,
                         { headers: { 'User-Agent': 'StayNest-App' } }
                     );
-                    geoData = await geoRes.json();
-                }
+                    let geoData = await geoRes.json();
 
-                // Try 3: Location only (Fallback)
-                if (!geoData || geoData.length === 0) {
-                    geoRes = await fetch(
-                        `https://nominatim.openstreetmap.org/search?format=json&countrycodes=ie&q=${encodeURIComponent(formData.location + ', Dublin, Ireland')}`,
-                        { headers: { 'User-Agent': 'StayNest-App' } }
-                    );
-                    geoData = await geoRes.json();
-                }
-
-                if (geoData && geoData.length > 0) {
-                    const tempLat = parseFloat(geoData[0].lat);
-                    const tempLng = parseFloat(geoData[0].lon);
-
-                    // Only accept if coordinates are in Ireland
-                    if (isInIreland(tempLat, tempLng)) {
-                        lat = tempLat;
-                        lng = tempLng;
-                        console.log(`✅ Geocoded to Ireland: ${lat}, ${lng}`);
-                    } else {
-                        console.warn(`⚠️ Geocoding returned non-Ireland coords (${tempLat}, ${tempLng}), using default Dublin`);
+                    // Try 2: Location provided (Fallback)
+                    if (!geoData || geoData.length === 0) {
+                        geoRes = await fetch(
+                            `https://nominatim.openstreetmap.org/search?format=json&countrycodes=ie&q=${encodeURIComponent(formData.location + ', Dublin, Ireland')}`,
+                            { headers: { 'User-Agent': 'StayNest-App' } }
+                        );
+                        geoData = await geoRes.json();
                     }
+
+                    if (geoData && geoData.length > 0) {
+                        const tempLat = parseFloat(geoData[0].lat);
+                        const tempLng = parseFloat(geoData[0].lon);
+
+                        if (isInIreland(tempLat, tempLng)) {
+                            lat = tempLat;
+                            lng = tempLng;
+                            console.log(`✅ Geocoded to: ${lat}, ${lng}`);
+                        }
+                    }
+                } catch (err) {
+                    console.error("Geocoding failed:", err);
                 }
-            } catch (err) {
-                console.error("Geocoding failed (non-fatal):", err);
-                // We don't throw here, just use default lat/lng
             }
 
             // Then send to our backend
@@ -192,7 +188,6 @@ const NewListing = () => {
                     throw new Error(`Backend Error: ${errorData.message || response.statusText}`);
                 }
             } catch (err) {
-                // Check if it is a network error (fetch failed)
                 if (err.message === 'Failed to fetch') {
                     throw new Error('Backend Connection Failed. Is the server running on port 5000?');
                 }
@@ -207,6 +202,7 @@ const NewListing = () => {
         }
     };
 
+    // ... handleTagChange ...
     const handleTagChange = (tag) => {
         setFormData(prev => ({
             ...prev,
@@ -216,6 +212,7 @@ const NewListing = () => {
         }));
     };
 
+    // ... Render ...
     return (
         <>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px' }}>
@@ -226,6 +223,8 @@ const NewListing = () => {
             </div>
 
             <form onSubmit={handleSubmit} style={{ background: 'white', padding: '32px', borderRadius: '24px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)', border: '1px solid #E2E8F0' }}>
+
+                {/* ... Add Photos section ... */}
                 <h3 style={{ marginBottom: '12px', fontSize: '18px', fontWeight: '700' }}>Add Photos</h3>
                 <div style={{
                     border: '1.5px dashed var(--color-brand)',
@@ -248,7 +247,7 @@ const NewListing = () => {
                         Select photos
                     </label>
                 </div>
-
+                {/* ... Take Photo Button ... */}
                 <button
                     type="button"
                     onClick={takePhoto}
@@ -276,6 +275,7 @@ const NewListing = () => {
                     Take a Photo
                 </button>
 
+                {/* ... Image Preview Carosel ... */}
                 {images.length > 0 && (
                     <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '12px', marginBottom: '24px' }}>
                         {images.map((img, index) => (
@@ -347,6 +347,7 @@ const NewListing = () => {
                     </div>
                 </div>
 
+                {/* ... Bed/Guests ... */}
                 <div style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
                     <div style={{ flex: 1 }}>
                         <label style={labelStyle}>Bedrooms</label>
@@ -398,28 +399,31 @@ const NewListing = () => {
                     />
                 </div>
 
-
+                {/* REPLACED LOCATION INPUT */}
                 <div style={{ marginBottom: '16px' }}>
-                    <label style={labelStyle}>Location ()</label>
-                    <input
-                        type="text"
-                        placeholder="Dublin 1"
-                        className="input-field"
-                        style={inputStyle}
-                        required
+                    <label style={labelStyle}>Location</label>
+                    <PlacesAutocomplete
                         value={formData.location}
-                        onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                        onChange={(val) => setFormData(prev => ({ ...prev, location: val }))}
+                        onSelect={(place) => {
+                            setFormData(prev => ({
+                                ...prev,
+                                location: place.address,
+                                lat: place.lat,
+                                lng: place.lng
+                            }));
+                        }}
+                        placeholder="Search for area (e.g. Smithfield, Dublin 7)"
                     />
                 </div>
 
                 <div style={{ marginBottom: '16px' }}>
-                    <label style={labelStyle}>Eircode (Postcode) - *Mandatory for Map Accuracy</label>
+                    <label style={labelStyle}>Eircode (Postcode)</label>
                     <input
                         type="text"
                         placeholder="D01 FE34"
                         className="input-field"
                         style={inputStyle}
-                        required
                         value={formData.eircode}
                         onChange={(e) => setFormData({ ...formData, eircode: e.target.value.toUpperCase() })}
                     />

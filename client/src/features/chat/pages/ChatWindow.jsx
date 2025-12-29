@@ -91,9 +91,25 @@ const ChatWindow = () => {
         };
     }, [chatId, otherUserId, currentUser.uid]);
 
+    // Theme Logic - REVERTED TO STANDARD
+    // const isBuddyChat = location.state?.isBuddyChat || chatData?.propertyTitle === 'Buddy Up Request';
+    const themeColor = 'var(--color-brand)';
+    const lightThemeColor = 'var(--color-brand-light)';
+
     const sendMessage = async (e) => {
         e.preventDefault();
-        if (!input.trim() || !currentUser || !chatId) return;
+
+        if (!currentUser) {
+            console.error("SendMessage Failed: No Current User");
+            alert("You must be logged in to send messages.");
+            return;
+        }
+        if (!chatId) {
+            console.error("SendMessage Failed: No Chat ID", { currentUser: currentUser.uid, otherUserId });
+            alert("Chat initialization error. Please try again.");
+            return;
+        }
+        if (!input.trim()) return;
 
         const messageText = input;
         setInput('');
@@ -109,11 +125,12 @@ const ChatWindow = () => {
             };
 
             // If we have property context and it's not already set, add it
-            if (propertyContext.propertyId && !chatData?.propertyId) {
-                chatMeta.propertyId = propertyContext.propertyId;
-                chatMeta.propertyTitle = propertyContext.propertyTitle;
+            if ((propertyContext.propertyId || propertyContext.propertyTitle) && !chatData?.propertyId) {
+                chatMeta.propertyId = propertyContext.propertyId || 'buddy-up';
+                chatMeta.propertyTitle = propertyContext.propertyTitle || 'Buddy Up Request';
             }
 
+            console.log("Sending message to Chat:", chatId, chatMeta);
             await setDoc(doc(db, "chats", chatId), chatMeta, { merge: true });
 
             // Add the actual message
@@ -122,9 +139,10 @@ const ChatWindow = () => {
                 senderId: currentUser.uid,
                 createdAt: serverTimestamp()
             });
+            console.log("Message sent successfully!");
         } catch (error) {
             console.error("Error sending message:", error);
-            alert("Failed to send message. Please try again.");
+            alert("Failed to send message: " + error.message);
         }
     };
 
@@ -148,21 +166,21 @@ const ChatWindow = () => {
             <div style={{ padding: '16px 20px', borderBottom: '1px solid #eee', display: 'flex', alignItems: 'center', gap: '12px', background: 'white' }}>
                 {!isBrokerView && (
                     <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}>
-                        <span className="material-icons-round">arrow_back</span>
+                        <span className="material-icons-round" style={{ color: '#64748B' }}>arrow_back</span>
                     </button>
                 )}
-                <div style={{ width: '40px', height: '40px', background: 'var(--color-brand)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
+                <div style={{ width: '40px', height: '40px', background: themeColor, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
                     <span className="material-icons-round" style={{ fontSize: '24px' }}>person</span>
                 </div>
                 <div>
-                    <h3 style={{ margin: 0, fontSize: '16px', color: 'var(--color-text-pri)' }}>{otherUser?.fullName || 'Broker'}</h3>
+                    <h3 style={{ margin: 0, fontSize: '16px', color: 'var(--color-text-pri)' }}>{otherUser?.fullName || 'Chat'}</h3>
                     <span style={{ fontSize: '12px', color: 'var(--color-success)', fontWeight: '600' }}>Online</span>
                 </div>
             </div>
 
-            {/* Property Context Banner */}
+            {/* Property/Context Banner */}
             {(propertyContext.propertyTitle || chatData?.propertyTitle) && (
-                <div style={{ padding: '8px 16px', background: 'var(--color-brand-light)', color: 'var(--color-brand)', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
+                <div style={{ padding: '8px 16px', background: lightThemeColor, color: themeColor, fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
                     <span className="material-icons-round" style={{ fontSize: '18px' }}>info</span>
                     <span>Inquiring about: <b>{propertyContext.propertyTitle || chatData?.propertyTitle}</b></span>
                 </div>
@@ -172,14 +190,14 @@ const ChatWindow = () => {
             <div style={{ flex: 1, padding: '16px', overflowY: 'auto', background: '#F7F7F7', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {messages.length === 0 && (
                     <div style={{ textAlign: 'center', color: '#999', marginTop: '40px' }}>
-                        <span className="material-icons-round" style={{ fontSize: '48px', marginBottom: '8px' }}>chat_bubble_outline</span>
+                        <span className="material-icons-round" style={{ fontSize: '48px', marginBottom: '8px', color: '#CBD5E1' }}>chat_bubble_outline</span>
                         <p>No messages yet. Say hi!</p>
                     </div>
                 )}
                 {messages.map(msg => (
                     <div key={msg.id} style={{
                         alignSelf: msg.senderId === currentUser.uid ? 'flex-end' : 'flex-start',
-                        background: msg.senderId === currentUser.uid ? 'var(--color-brand)' : 'white',
+                        background: msg.senderId === currentUser.uid ? themeColor : 'white',
                         color: msg.senderId === currentUser.uid ? 'white' : 'var(--color-text-pri)',
                         padding: '12px 16px',
                         borderRadius: '18px',
@@ -206,10 +224,10 @@ const ChatWindow = () => {
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     placeholder="Type a message..."
-                    style={{ flex: 1, padding: '12px 20px', borderRadius: '25px', border: '1px solid #ddd', outline: 'none', background: '#F7F7F7', fontSize: '15px' }}
+                    style={{ flex: 1, padding: '12px 20px', borderRadius: '25px', border: '1px solid #E2E8F0', outline: 'none', background: '#F8FAFC', fontSize: '15px' }}
                 />
                 <button type="submit" disabled={!input.trim()} style={{
-                    background: 'var(--color-success)',
+                    background: themeColor,
                     color: 'white',
                     border: 'none',
                     borderRadius: '50%',
@@ -220,7 +238,8 @@ const ChatWindow = () => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    boxShadow: '0 4px 10px rgba(34,197,94,0.2)'
+                    boxShadow: '0 4px 10px rgba(30, 58, 138, 0.2)',
+                    transition: 'all 0.2s'
                 }}>
                     <span className="material-icons-round">send</span>
                 </button>

@@ -12,7 +12,14 @@ import AddRoommateModal from '../components/AddRoommateModal';
 
 const Dashboard = () => {
     const navigate = useNavigate();
-    const [activeTab, setActiveTab] = useState('properties'); // 'properties' | 'roommates'
+    // Persist active tab selection to support "Back" navigation
+    const [activeTab, setActiveTab] = useState(() => {
+        return sessionStorage.getItem('dashboardTab') || 'properties';
+    });
+
+    useEffect(() => {
+        sessionStorage.setItem('dashboardTab', activeTab);
+    }, [activeTab]);
     const [listings, setListings] = useState([]);
     const [filteredListings, setFilteredListings] = useState([]);
     const [viewMode, setViewMode] = useState('list');
@@ -132,12 +139,7 @@ const Dashboard = () => {
 
         // 2. Proximity-based Search
         if (searchCoords) {
-            const RADIUS_KM = 3; // 3km radius
-            result = result.filter(item => {
-                const dist = getDistance(searchCoords.lat, searchCoords.lng, item.lat, item.lng);
-                return dist <= RADIUS_KM;
-            });
-            // Sort by proximity to searched place
+            // Calculate distance for ALL items and sort by proximity
             result = result.map(item => ({
                 ...item,
                 distanceToSearch: getDistance(searchCoords.lat, searchCoords.lng, item.lat, item.lng)
@@ -189,15 +191,13 @@ const Dashboard = () => {
             });
         }
 
-        // 3. Proximity to College (Secondary Sorting/Annotation)
-        if (activeFilters.selectedCollege) {
-            const campusCoords = CAMPUS_LOCATIONS[activeFilters.selectedCollege];
-            if (campusCoords) {
-                result = result.map(item => {
-                    const dist = getDistance(campusCoords.lat, campusCoords.lng, item.lat, item.lng);
-                    return { ...item, distanceToCollege: dist };
-                });
-            }
+        {/* 3. Proximity to College (Secondary Sorting/Annotation) */ }
+        if (activeFilters.selectedCollege && activeFilters.selectedCollege.lat) {
+            const campusCoords = activeFilters.selectedCollege;
+            result = result.map(item => {
+                const dist = getDistance(campusCoords.lat, campusCoords.lng, item.lat, item.lng);
+                return { ...item, distanceToCollege: dist };
+            });
         } else {
             result = result.map(item => ({ ...item, distanceToCollege: null }));
         }
@@ -231,6 +231,7 @@ const Dashboard = () => {
 
     return (
         <div style={{ padding: '16px', paddingBottom: '90px', maxWidth: '600px', margin: '0 auto' }}>
+            {/* ... Header and Tabs ... */}
             <div style={{ marginBottom: '32px', paddingTop: '10px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -449,7 +450,8 @@ const Dashboard = () => {
                                 >
                                     <ListingCard
                                         listing={item}
-                                        commuteTarget={activeFilters.selectedCollege ? { name: activeFilters.selectedCollege, ...CAMPUS_LOCATIONS[activeFilters.selectedCollege] } : null}
+                                        searchTarget={searchCoords ? { name: activeFilters.searchPlace || 'Search Location', ...searchCoords } : null}
+                                        collegeTarget={activeFilters.selectedCollege}
                                     />
                                 </div>
                             ))}
@@ -457,8 +459,7 @@ const Dashboard = () => {
                     ) : (
                         <MapView
                             listings={filteredListings}
-                            center={searchCoords || (activeFilters.selectedCollege ? CAMPUS_LOCATIONS[activeFilters.selectedCollege] : null)}
-                            selectedCollege={activeFilters.selectedCollege}
+                            center={searchCoords || activeFilters.selectedCollege}
                         />
                     )}
                 </>
@@ -541,16 +542,38 @@ const Dashboard = () => {
                     )}
 
                     {visibleRoommates.length === 0 ? (
-                        <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--color-text-hint)' }}>
-                            <span className="material-icons-round" style={{ fontSize: '48px', marginBottom: '16px', opacity: 0.5 }}>groups</span>
-                            <p>No other profiles yet. Be the first to join!</p>
+                        <div style={{
+                            textAlign: 'center',
+                            padding: '60px 20px',
+                            background: 'white',
+                            borderRadius: '24px',
+                            boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
+                            border: '1px solid #F1F5F9',
+                            marginTop: '20px'
+                        }}>
+                            <div style={{
+                                width: '80px', height: '80px', margin: '0 auto 20px',
+                                background: 'var(--color-brand-light)', borderRadius: '50%',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center'
+                            }}>
+                                <span className="material-icons-round" style={{ fontSize: '40px', color: 'var(--color-brand)' }}>groups</span>
+                            </div>
+                            <h3 style={{ margin: '0 0 8px 0', color: 'var(--color-text-pri)', fontSize: '18px', fontWeight: '800' }}>Find Your Squad</h3>
+                            <p style={{ margin: '0 auto 24px', maxWidth: '280px', color: 'var(--color-text-sec)', lineHeight: '1.5' }}>
+                                No other roommates have joined yet. Be the first to create a profile and start the community!
+                            </p>
                             {!currentUserProfile && (
                                 <button
                                     onClick={() => setIsModalOpen(true)}
                                     className="btn-primary"
-                                    style={{ marginTop: '16px', padding: '8px 16px', borderRadius: '20px', fontSize: '13px' }}
+                                    style={{
+                                        padding: '12px 24px',
+                                        borderRadius: '16px',
+                                        width: 'auto',
+                                        margin: '0 auto'
+                                    }}
                                 >
-                                    Create Profile
+                                    Create My Profile
                                 </button>
                             )}
                         </div>
